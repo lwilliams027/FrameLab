@@ -2842,6 +2842,17 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
   const jsonInputRef = useRef(null);
   const statsInputRef = useRef(null);
 
+  // Ref to OrphanPreview so we can pull current zoom/offset/speed at apply time
+  const previewRef = useRef(null);
+
+  // Refs for validation shake-and-scroll
+  const attachSectionRef = useRef(null);
+  const jsonRowRef       = useRef(null);
+  const existingRowRef   = useRef(null);
+
+  // IMPORTANT: this early return MUST come after all hook calls above —
+  // otherwise React sees a different number of hooks between renders
+  // (error #310: "Rendered more hooks than during the previous render").
   if (!pending || pending.length === 0) return null;
 
   const moveOptions = Object.values(moves || {})
@@ -2854,14 +2865,6 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
 
   const setRes  = (patch) => setResolutions(prev => ({ ...prev, [entry.id]: { ...(prev[entry.id] || {}), ...patch } }));
   const setTrim = (patch) => setTrims(prev => ({ ...prev, [entry.id]: { ...(prev[entry.id] || { a: 0, b: 0, duration: 0 }), ...patch } }));
-
-  // Ref to OrphanPreview so we can pull current zoom/offset/speed at apply time
-  const previewRef = useRef(null);
-
-  // Refs for validation shake-and-scroll
-  const attachSectionRef = useRef(null);
-  const jsonRowRef       = useRef(null);
-  const existingRowRef   = useRef(null);
 
   const shakeAndScroll = (el) => {
     if (!el) return;
