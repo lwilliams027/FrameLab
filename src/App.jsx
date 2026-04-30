@@ -1497,6 +1497,23 @@ function MoveEditor({ move, index, character, onChange, onDelete }) {
   const linkedStats  = move.frameDataMoveId ? fdStats[move.frameDataMoveId] : null;
   const totalLoaded  = Object.keys(fdMoves).length;
 
+  // Auto-suggest a Frame Data move that matches this combo move's
+  // character + button + direction + moveType. Used to populate the
+  // dropdown from generated placeholders without making the user pick.
+  const suggestedFdId = useMemo(() => {
+    if (move.frameDataMoveId) return null;          // already linked
+    if (!character) return null;
+    const candidates = (movesByChar[character] || []).filter(m => (
+      m.buttonInput === move.buttonInput &&
+      m.inputDirection === move.inputDirection &&
+      m.moveType === move.moveType
+    ));
+    if (candidates.length === 0) return null;
+    // Prefer a non-placeholder match (real data) over a placeholder
+    const real = candidates.find(c => !c.isPlaceholder);
+    return (real || candidates[0]).id;
+  }, [character, move.buttonInput, move.inputDirection, move.moveType, move.frameDataMoveId, movesByChar]);
+
   return (
     <div className="move-row">
       <div className="move-row-header">
@@ -1574,8 +1591,31 @@ function MoveEditor({ move, index, character, onChange, onDelete }) {
             <span style={{
               fontSize: 10, color: "var(--text3)", textTransform: "none",
               letterSpacing: 0, fontWeight: 400,
+              display: "flex", alignItems: "center", gap: 8,
             }}>
-              {totalLoaded === 0 ? "no moves loaded — upload via Import / Export" : `${totalLoaded} loaded`}
+              {suggestedFdId && (
+                <button
+                  onClick={() => set("frameDataMoveId", suggestedFdId)}
+                  style={{
+                    fontSize: 10,
+                    fontFamily: "var(--font-mono)",
+                    background: "rgba(99,102,241,0.15)",
+                    color: "var(--accent3)",
+                    border: "1px solid var(--accent)",
+                    borderRadius: 4,
+                    padding: "2px 8px",
+                    cursor: "pointer",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.5,
+                  }}
+                  title={`Auto-link to ${fdMoves[suggestedFdId]?.character} · ${fdMoves[suggestedFdId]?.action}`}
+                >
+                  ⚡ auto-link
+                </button>
+              )}
+              <span>
+                {totalLoaded === 0 ? "no moves loaded — upload via Import / Export" : `${totalLoaded} loaded`}
+              </span>
             </span>
           </label>
           <select
@@ -2556,6 +2596,86 @@ function FrameDataIO() {
     toast(`Exported ${moveCount} move${moveCount !== 1 ? "s" : ""}`, "success");
   };
 
+  // ── Auto-generate empty placeholder slots for every character × move ──
+  // Creates a placeholder Frame Data move for each combination of
+  // (character × buttonInput × inputDirection) so the user only needs to
+  // attach videos. Skips IDs that already exist so real data isn't blown away.
+  const generatePlaceholders = () => {
+    // The slots that actually map to moves people use in combos.
+    // Skipping Throw/Grab buttons (no inputDirection axis) and special-only
+    // categories — keeping it to the standard Attack/Special × 5 directions.
+    const slotPairs = [
+      { button: "Attack",  dir: "Neutral",  label: "Neutral Attack",  type: "Grounded" },
+      { button: "Attack",  dir: "Forward",  label: "Forward Attack",  type: "Grounded" },
+      { button: "Attack",  dir: "Up",       label: "Up Attack",       type: "Grounded" },
+      { button: "Attack",  dir: "Down",     label: "Down Attack",     type: "Grounded" },
+      { button: "Attack",  dir: "Neutral",  label: "Neutral Air",     type: "Aerial",   air: true },
+      { button: "Attack",  dir: "Forward",  label: "Forward Air",     type: "Aerial",   air: true },
+      { button: "Attack",  dir: "Up",       label: "Up Air",          type: "Aerial",   air: true },
+      { button: "Attack",  dir: "Down",     label: "Down Air",        type: "Aerial",   air: true },
+      { button: "Special", dir: "Neutral",  label: "Neutral Special", type: "Grounded" },
+      { button: "Special", dir: "Forward",  label: "Forward Special", type: "Grounded" },
+      { button: "Special", dir: "Up",       label: "Up Special",      type: "Grounded" },
+      { button: "Special", dir: "Down",     label: "Down Special",    type: "Grounded" },
+      { button: "Grab",    dir: "Neutral",  label: "Grab",            type: "Grab" },
+    ];
+
+    // Make IDs deterministic so the same call generates the same slots.
+    const makeId = (char, slot) => {
+      const c = char.replace(/[^A-Za-z0-9]/g, "");
+      const a = (slot.air ? "Air" : "") + slot.label.replace(/\s+/g, "");
+      return `Placeholder_${c}_${a}`;
+    };
+
+    const existing = state.frameData.moves || {};
+    const newMoves = {};
+    let added = 0, kept = 0;
+
+    for (const character of ENUM.Characters) {
+      for (const slot of slotPairs) {
+        const id = makeId(character, slot);
+        if (existing[id]) { kept++; continue; }
+        newMoves[id] = {
+          id,
+          character,
+          category: "Attack",
+          action: slot.label,
+          durationSec: 1.0,
+          durationFrames: 60,
+          notifies: [],
+          sections: [],
+          boneCount: 0,
+          socketCount: 0,
+          slotCount: 0,
+          curveCount: 0,
+          refMontage: "",
+          // Mark as placeholder so the UI can style it differently if needed
+          isPlaceholder: true,
+          // Pre-fill the matchup info that maps to combo-builder slots
+          buttonInput: slot.button,
+          inputDirection: slot.dir,
+          moveType: slot.type,
+        };
+        added++;
+      }
+    }
+
+    if (added === 0) {
+      toast(`All ${kept} slots already exist`, "info");
+      return;
+    }
+
+    dispatch({
+      type: "FRAMEDATA_REPLACE_ALL",
+      payload: {
+        moves: { ...existing, ...newMoves },
+        media: state.frameData.media || {},
+        stats: state.frameData.stats || {},
+      },
+    });
+    toast(`Generated ${added} placeholder slot${added !== 1 ? "s" : ""} (${kept} kept)`, "success");
+  };
+
   const clearAll = () => {
     if (moveCount === 0) return;
     if (!confirm(`Remove all ${moveCount} frame data move${moveCount !== 1 ? "s" : ""}? Manifest reload will repopulate on refresh.`)) return;
@@ -2661,6 +2781,11 @@ function FrameDataIO() {
           )}
 
           <hr className="divider" />
+          <button className="btn btn-secondary" style={{ width: "100%", marginBottom: 8 }}
+                  onClick={generatePlaceholders}
+                  title="Create empty Frame Data slots for every character × move so you only need to attach videos">
+            ✦ Generate Placeholder Slots ({ENUM.Characters.length} chars × 13 moves)
+          </button>
           <button className="btn btn-danger" style={{ width: "100%" }}
                   onClick={clearAll} disabled={moveCount === 0}>
             ✕ Clear All Frame Data ({moveCount})
