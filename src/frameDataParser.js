@@ -123,10 +123,17 @@ export function parseAsset(json) {
  *
  * The Montage carries MUCH richer notify data than the corresponding FAD —
  * each notify has a real `Duration` field (the FAD only stores start/end
- * frame indices), plus object paths to the underlying NotifyState classes
- * (so we can identify hitbox vs branch vs sound notifies more reliably).
+ * frame indices), plus references to inner UObject helpers that hold the
+ * actual game data: damage, knockback, hitstun, action branches, etc.
  *
- * Returns: { id, durationSec, durationFrames, notifies, compositeSections }
+ * The export is an array of objects. The AnimMontage itself has a
+ * `Notifies` array whose entries reference inner objects via
+ * `NotifyStateClass.ObjectName`. We resolve those references against the
+ * other objects in the same array (by their `Name`) so each notify gets
+ * a `data` payload with whatever fields its specific class carries.
+ *
+ * Returns: { id, durationSec, durationFrames, notifies, compositeSections,
+ *            attackData?: { damage, baseKnockback, hitstun, ... } }
  *          or null if the JSON didn't contain an AnimMontage.
  */
 export function parseMontage(json) {
@@ -135,46 +142,164 @@ export function parseMontage(json) {
   if (!montage) return null;
   const props = montage.Properties || {};
 
-  // Montage uses raw seconds (not fixed-point) for these fields
-  const num = (v) => (typeof v === "number" ? v : 0);
+  // Build a Name → object lookup for resolving NotifyStateClass references
+  const byName = new Map();
+  for (const o of arr) {
+    if (o.Name) byName.set(o.Name, o);
+  }
 
-  const durationSec = num(props.SequenceLength);
-  const durationFrames = secondsToFrames(durationSec);
+  // Helper: pull the inner object name out of an ObjectName string like
+  //   "MvsHitboxSetAnimNotifyState'Mvs_Arya_Attack_Combo1_Montage:MvsHitboxSetAnimNotifyState_0'"
+  // Returns: "MvsHitboxSetAnimNotifyState_0"
+  const refName = (objRef) => {
+    if (!objRef?.ObjectName) return null;
+    const m = objRef.ObjectName.match(/'[^:]*:([^']+)'$/);
+    return m ? m[1] : null;
+  };
 
+  // Helper: convert any value that might be 32.32 fixed-point into a number.
+  // Plain numbers pass through; { Data: N } wraps get scaled.
+  const num = (v) => {
+    if (v == null) return 0;
+    if (typeof v === "number") return v;
+    if (typeof v === "object" && "Data" in v) return v.Data / FIXED_SCALE;
+    return 0;
+  };
+
+  // Extract the headline attack stats (damage, knockback, etc.) from the
+  // FIRST hitbox notify state we find. Most Combo1 / Forward Air type moves
+  // only have one — for moves with multiple hitboxes we keep an array too.
+  const hitboxStates = [];
+  for (const n of (props.Notifies || [])) {
+    const innerName = refName(n.NotifyStateClass);
+    const inner = innerName ? byName.get(innerName) : null;
+    if (inner?.Type === "MvsHitboxSetAnimNotifyState") {
+      const hb = inner.Properties?.HitboxData || {};
+      hitboxStates.push({
+        startSec: typeof n.TriggerTimeOffset === "number" ? n.TriggerTimeOffset : 0,
+        durationSec: typeof n.Duration === "number" ? n.Duration : 0,
+        damage: num(hb.Damage),
+        baseKnockback: num(hb.BaseKnockback),
+        knockbackAngleX: num(hb.KnockbackDirection?.X),
+        knockbackAngleY: num(hb.KnockbackDirection?.Y),
+        attackerHitpauseFrames: hb.AttackerHitpauseFrames ?? 0,
+        defenderHitpauseFrames: hb.DefenderHitpauseFrames ?? 0,
+        hitpauseInfluenceMultiplier: num(hb.HitpauseInfluenceMultiplier),
+        hitstunMultiplier: num(hb.HitstunMultiplier),
+        attackDecayTag: hb.AttackDecayTag ?? "",
+        decayType: hb.DecayType ?? "",
+        preventTerrainBounce: !!hb.PreventTerrainBounce,
+        useVacuum: !!hb.VacuumData?.bUseVauumKnockback,
+        vacuumDurationSec: num(hb.VacuumData?.VacuumDuration),
+      });
+    }
+  }
+  // Headline stats = the first hitbox (most attacks have one primary hit)
+  const attackData = hitboxStates[0]
+    ? {
+        damage:                hitboxStates[0].damage,
+        baseKnockback:         hitboxStates[0].baseKnockback,
+        knockbackAngleX:       hitboxStates[0].knockbackAngleX,
+        knockbackAngleY:       hitboxStates[0].knockbackAngleY,
+        attackerHitpauseFrames: hitboxStates[0].attackerHitpauseFrames,
+        defenderHitpauseFrames: hitboxStates[0].defenderHitpauseFrames,
+        hitstunMultiplier:     hitboxStates[0].hitstunMultiplier,
+        attackDecayTag:        hitboxStates[0].attackDecayTag,
+        decayType:             hitboxStates[0].decayType,
+        useVacuum:             hitboxStates[0].useVacuum,
+      }
+    : null;
+
+  // Movement command (DistanceOverTimeMoveCommand) — describes how the
+  // character launches forward during the attack. Useful for "lunge" tags.
+  let movementData = null;
+  for (const o of arr) {
+    if (o.Type === "MvsDistanceOverTimeMoveCommandNotifyState") {
+      const lp = o.Properties?.LaunchParameters || {};
+      movementData = {
+        launchVelocityX: num(lp.LaunchVelocity?.X),
+        launchVelocityY: num(lp.LaunchVelocity?.Y),
+        priority: o.Properties?.Priority || "",
+      };
+      break;
+    }
+  }
+
+  // Build the rich notify list — each FAD notify gets its inner object's
+  // type + duration so the timeline can render with extra info.
   const notifies = (props.Notifies || []).map(n => {
-    const startSec = num(n.TriggerTimeOffset);
-    const dur = num(n.Duration);
-    const endSec = startSec + dur;
-    // Strip the "MvsActionBranchNotifyState_*" / "AnimNotify_*" prefixes so
-    // hitbox/branch detection in FrameDataTab still works the same way.
-    const rawName = n.NotifyName || "Unknown";
-    const cls = n.NotifyStateClass?.ObjectName || n.Notify?.ObjectName || "";
+    const startSec = typeof n.TriggerTimeOffset === "number" ? n.TriggerTimeOffset : 0;
+    const dur      = typeof n.Duration === "number" ? n.Duration : 0;
+    const endSec   = startSec + dur;
+    const innerName = refName(n.NotifyStateClass);
+    const inner = innerName ? byName.get(innerName) : null;
+
+    // Pluck the most useful fields off the inner object based on its type.
+    // Doing this here means the UI doesn't have to know every Mvs* class.
+    const data = {};
+    if (inner) {
+      const ip = inner.Properties || {};
+      switch (inner.Type) {
+        case "MvsHitboxSetAnimNotifyState": {
+          const hb = ip.HitboxData || {};
+          Object.assign(data, {
+            damage:                num(hb.Damage),
+            baseKnockback:         num(hb.BaseKnockback),
+            attackerHitpauseFrames: hb.AttackerHitpauseFrames ?? 0,
+            defenderHitpauseFrames: hb.DefenderHitpauseFrames ?? 0,
+            hitstunMultiplier:     num(hb.HitstunMultiplier),
+            attackDecayTag:        hb.AttackDecayTag ?? "",
+          });
+          break;
+        }
+        case "MvsActionBranchNotifyState_Immediate":
+        case "MvsActionBranchNotifyState_Queued": {
+          data.framesToDelaySameAction = ip.FramesToDelaySameAction ?? 0;
+          data.conditionCount = (ip.Conditions || []).length;
+          break;
+        }
+        case "MvsDistanceOverTimeMoveCommandNotifyState": {
+          const lp = ip.LaunchParameters || {};
+          data.launchVelocityX = num(lp.LaunchVelocity?.X);
+          data.launchVelocityY = num(lp.LaunchVelocity?.Y);
+          break;
+        }
+        case "MvsParticleAnimNotifyState": {
+          data.boneName = ip.ParticleData?.BoneName || "";
+          break;
+        }
+      }
+    }
+
     return {
-      name: rawName,
-      classObject: cls,
+      name: n.NotifyName || inner?.Type || "Unknown",
+      classObject: n.NotifyStateClass?.ObjectName || "",
+      innerType: inner?.Type || null,
       startSec, endSec,
       startFrame: secondsToFrames(Math.max(0, startSec)),
       endFrame:   secondsToFrames(Math.max(0, endSec)),
       durationSec: dur,
       track: n.TrackIndex ?? 0,
-      // Original notify body is preserved for advanced inspectors
-      raw: n,
+      data,
     };
   });
 
   const compositeSections = (props.CompositeSections || []).map(s => ({
     name: s.SectionName || "Unnamed",
     next: s.NextSectionName || "",
-    startSec: num(s.SegmentBeginTime),
-    durationSec: num(s.SegmentLength),
+    startSec: typeof s.SegmentBeginTime === "number" ? s.SegmentBeginTime : 0,
+    durationSec: typeof s.SegmentLength === "number" ? s.SegmentLength : 0,
   }));
 
   return {
     id: montage.Name,
-    durationSec,
-    durationFrames,
+    durationSec: typeof props.SequenceLength === "number" ? props.SequenceLength : 0,
+    durationFrames: secondsToFrames(typeof props.SequenceLength === "number" ? props.SequenceLength : 0),
     notifies,
     compositeSections,
+    attackData,
+    hitboxStates,
+    movementData,
   };
 }
 
@@ -229,6 +354,9 @@ export function mergeMontageIntoMove(move, montage) {
     ...move,
     notifies: augmented,
     montageSections: montage.compositeSections,
+    attackData: montage.attackData || null,
+    hitboxStates: montage.hitboxStates || [],
+    movementData: montage.movementData || null,
     hasMontage: true,
   };
 }

@@ -1226,7 +1226,77 @@ function MoveDetail({
                 <div className="fd-stat-tile-sub">center stage</div>
               </div>
             )}
+
+            {/* Montage-derived stats (damage, knockback, hitstun, hitpause).
+                Only present if the user uploaded a Montage JSON alongside
+                the FAD when adding this move. */}
+            {move.attackData && (
+              <>
+                <div className="fd-stat-tile" style={{
+                  "--tile-color": "#f472b6",
+                  "--tile-glow": "rgba(244,114,182,0.4)",
+                  "--tile-tint": "rgba(244,114,182,0.06)",
+                }}>
+                  <div className="fd-stat-tile-value">{move.attackData.damage.toFixed(0)}</div>
+                  <div className="fd-stat-tile-label">Damage</div>
+                  <div className="fd-stat-tile-sub">base hit damage</div>
+                </div>
+                <div className="fd-stat-tile" style={{
+                  "--tile-color": "#a855f7",
+                  "--tile-glow": "rgba(168,85,247,0.4)",
+                  "--tile-tint": "rgba(168,85,247,0.06)",
+                }}>
+                  <div className="fd-stat-tile-value">{move.attackData.baseKnockback.toFixed(0)}</div>
+                  <div className="fd-stat-tile-label">Knockback</div>
+                  <div className="fd-stat-tile-sub">base value</div>
+                </div>
+                <div className="fd-stat-tile" style={{
+                  "--tile-color": "#fb923c",
+                  "--tile-glow": "rgba(251,146,60,0.4)",
+                  "--tile-tint": "rgba(251,146,60,0.06)",
+                }}>
+                  <div className="fd-stat-tile-value">×{move.attackData.hitstunMultiplier.toFixed(2)}</div>
+                  <div className="fd-stat-tile-label">Hitstun</div>
+                  <div className="fd-stat-tile-sub">multiplier</div>
+                </div>
+                <div className="fd-stat-tile" style={{
+                  "--tile-color": "var(--accent2)",
+                  "--tile-glow": "rgba(129,140,248,0.4)",
+                  "--tile-tint": "rgba(129,140,248,0.06)",
+                }}>
+                  <div className="fd-stat-tile-value">{move.attackData.attackerHitpauseFrames}/{move.attackData.defenderHitpauseFrames}</div>
+                  <div className="fd-stat-tile-label">Hitpause</div>
+                  <div className="fd-stat-tile-sub">attacker / defender</div>
+                </div>
+              </>
+            )}
           </div>
+
+          {/* Extra montage info row — decay tag, knockback angle, movement.
+              Compact single-line summary so we don't blow up the layout. */}
+          {move.attackData && (
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: 12,
+              fontSize: 11, fontFamily: "var(--font-mono)",
+              color: "var(--text2)", marginTop: -4, marginBottom: 16,
+              padding: "8px 14px",
+              background: "var(--bg2)",
+              border: "1px solid var(--line)",
+              borderRadius: "var(--r)",
+            }}>
+              {move.attackData.attackDecayTag && (
+                <span><span style={{ color: "var(--text3)" }}>decay tag:</span> <span style={{ color: "var(--accent3)" }}>{move.attackData.attackDecayTag}</span></span>
+              )}
+              <span><span style={{ color: "var(--text3)" }}>angle:</span> {move.attackData.knockbackAngleX.toFixed(0)}/{move.attackData.knockbackAngleY.toFixed(0)}</span>
+              {move.attackData.useVacuum && <span style={{ color: "var(--cyan)" }}>vacuum</span>}
+              {move.movementData && (
+                <span><span style={{ color: "var(--text3)" }}>launch:</span> {move.movementData.launchVelocityX.toFixed(0)}px/s</span>
+              )}
+              {move.hitboxStates && move.hitboxStates.length > 1 && (
+                <span><span style={{ color: "var(--text3)" }}>hits:</span> {move.hitboxStates.length}</span>
+              )}
+            </div>
+          )}
 
           {/* Frame strip — colored bar showing startup / active / recovery */}
           <div className="fd-strip-wrap">
