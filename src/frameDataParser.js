@@ -169,6 +169,21 @@ export function parseMontage(json) {
   // Extract the headline attack stats (damage, knockback, etc.) from the
   // FIRST hitbox notify state we find. Most Combo1 / Forward Air type moves
   // only have one — for moves with multiple hitboxes we keep an array too.
+  //
+  // CRITICAL: Notify start time is derived from `EndLink.LinkValue - Duration`,
+  // NOT from `TriggerTimeOffset`. The TriggerTimeOffset field in this UE
+  // export is a tiny precision epsilon (-0.0001 / 0.0001), not the actual
+  // anchor. The real time the notify fires is encoded as the END time
+  // (EndLink.LinkValue) minus the notify's Duration.
+  const notifyStartSec = (n) => {
+    const linkVal = n.EndLink?.LinkValue;
+    const dur     = typeof n.Duration === "number" ? n.Duration : 0;
+    if (typeof linkVal === "number") return Math.max(0, linkVal - dur);
+    // Fallback if EndLink is missing — use TriggerTimeOffset clamped.
+    const tto = typeof n.TriggerTimeOffset === "number" ? n.TriggerTimeOffset : 0;
+    return Math.max(0, tto);
+  };
+
   const hitboxStates = [];
   for (const n of (props.Notifies || [])) {
     const innerName = refName(n.NotifyStateClass);
@@ -176,7 +191,7 @@ export function parseMontage(json) {
     if (inner?.Type === "MvsHitboxSetAnimNotifyState") {
       const hb = inner.Properties?.HitboxData || {};
       hitboxStates.push({
-        startSec: typeof n.TriggerTimeOffset === "number" ? n.TriggerTimeOffset : 0,
+        startSec:    notifyStartSec(n),
         durationSec: typeof n.Duration === "number" ? n.Duration : 0,
         damage: num(hb.Damage),
         baseKnockback: num(hb.BaseKnockback),
@@ -228,7 +243,7 @@ export function parseMontage(json) {
   // Build the rich notify list — each FAD notify gets its inner object's
   // type + duration so the timeline can render with extra info.
   const notifies = (props.Notifies || []).map(n => {
-    const startSec = typeof n.TriggerTimeOffset === "number" ? n.TriggerTimeOffset : 0;
+    const startSec = notifyStartSec(n);
     const dur      = typeof n.Duration === "number" ? n.Duration : 0;
     const endSec   = startSec + dur;
     const innerName = refName(n.NotifyStateClass);
