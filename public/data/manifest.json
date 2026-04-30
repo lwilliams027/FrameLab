@@ -6,7 +6,8 @@
     },
     {
       "data": "data/Mvs_Arya_Attack_Combo1_Montage_FAD.json",
-      "media": "media/Mvs_Arya_Attack_Combo1.mp4"
+      "media": "media/Mvs_Arya_Attack_Combo1.mp4",
+      "stats": "data/Mvs_Arya_Attack_Combo1_Montage_FAD.stats.json"
     }
   ]
 }

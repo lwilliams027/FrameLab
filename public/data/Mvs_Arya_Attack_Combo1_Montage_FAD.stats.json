@@ -1,0 +1,22 @@
+{
+  "_comment": "Manual stats for Mvs_Arya_Attack_Combo1. Fill in values from training-mode testing or community frame data. Frame timing (startup/active/recovery/FAF) is auto-derived from the JSON above so it is not duplicated here.",
+
+  "displayName": "Jab 1 / Combo Starter",
+  "input": "Attack",
+  "killPercent": null,
+
+  "hitboxes": [
+    {
+      "_comment": "Hit 1 — frames 8-10 from the JSON. Replace null fields with values measured in-game.",
+      "damage": null,
+      "knockbackAngle": null,
+      "knockbackBase": null,
+      "knockbackScale": null,
+      "hitstun": null,
+      "blockstun": null,
+      "notes": ""
+    }
+  ],
+
+  "notes": "First hit of the standard ground combo. Cancels into Combo2 from frame 15 onwards (see FAF tile)."
+}

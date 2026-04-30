@@ -6,126 +6,21 @@
  * a frame-accurate scrubber, and a multi-track timeline of notify events
  * (hitbox windows, action branches, sound triggers, etc.).
  *
- * State is local to this tab — it doesn't touch the global combo store.
+ * Frame data state lives in the shared AppContext so the Import/Export tab
+ * can read and modify it. UI state (selectedId, currentFrame, isPlaying,
+ * tooltip) stays local to this tab.
+ *
  * Styling adapts to the existing MVSI design tokens (--accent, --bg2, etc.)
  * so it feels native to the rest of the app.
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-
-// ============================================================
-// CONSTANTS & DECODERS
-// ============================================================
-
-/** MultiVersus uses 32.32 fixed-point: actual = data / 2^32 */
-const FIXED_SCALE = 4294967296;
-const FPS = 60;
-
-const CATEGORY_LABELS = {
-  Nav: "Movement",
-  Atk: "Attack",
-  Attack: "Attack",
-  Sig: "Signature",
-  Hit: "Reaction",
-  Def: "Defense",
-  Tnt: "Taunt",
-  Emo: "Emote",
-};
-
-function fp(value) {
-  if (value == null) return 0;
-  if (typeof value === "object" && "Data" in value) value = value.Data;
-  return value / FIXED_SCALE;
-}
-
-function secondsToFrames(seconds) {
-  return Math.round(seconds * FPS);
-}
-
-function cleanNotifyName(name) {
-  return name.replace(/^AnimNotify_/, "").replace(/_C$/, "").replace(/_NotifyState$/, "");
-}
-
-function classifyNotify(name) {
-  const n = name.toLowerCase();
-  if (n.includes("hitbox")) return "hitbox";
-  if (n.includes("actionbranch") || n.includes("branch")) return "branch";
-  return "default";
-}
-
-// ============================================================
-// PARSER
-// ============================================================
-
-function parseMoveName(rawName) {
-  const cleaned = rawName.replace(/_Montage(_FAD)?$/, "").replace(/^Mvs_/, "");
-  const parts = cleaned.split("_");
-  let character = "Unknown", category = "Misc", action = cleaned;
-  if (parts.length >= 3) {
-    character = parts[0];
-    category = parts[1];
-    action = parts.slice(2).join(" ");
-  } else if (parts.length === 2) {
-    character = parts[0];
-    action = parts[1];
-  }
-  action = action.replace(/([a-z])([A-Z])/g, "$1 $2");
-  return { character, category, action };
-}
-
-function parseAsset(json) {
-  const arr = Array.isArray(json) ? json : [json];
-  const moves = [];
-  for (const asset of arr) {
-    if (asset.Type !== "PfgFixedAnimDataAsset") continue;
-    const props = asset.Properties || {};
-    const parsed = parseMoveName(asset.Name || "");
-    const durationSec = fp(props.Duration);
-    const durationFrames = secondsToFrames(durationSec);
-
-    const notifies = (props.NotifyData || []).map(n => ({
-      name: n.NotifyName || "Unknown",
-      startSec: fp(n.startTime),
-      endSec: fp(n.EndTime),
-      startFrame: secondsToFrames(fp(n.startTime)),
-      endFrame: secondsToFrames(fp(n.EndTime)),
-      track: n.TrackIndex ?? 0,
-      group: n.GroupName || "",
-    }));
-
-    const sections = (props.SectionData || []).map(s => ({
-      name: s.SectionName || "Unnamed",
-      next: s.NextSectionName || "",
-      startFrame: secondsToFrames(fp(s.startTime)),
-      endFrame: secondsToFrames(fp(s.EndTime)),
-    }));
-
-    let boneCount = 0, socketCount = 0, slotCount = 0, curveCount = 0;
-    const slotSets = props.SlotSets || [];
-    for (const slot of slotSets) {
-      slotCount++;
-      const inner = slot.Value?.SlotSet || [];
-      boneCount += inner.length;
-      for (const b of inner) socketCount += (b.Value?.SocketTransforms || []).length;
-      curveCount += (slot.Value?.VisibilityCurves || []).length;
-    }
-
-    moves.push({
-      id: asset.Name,
-      ...parsed,
-      durationSec,
-      durationFrames,
-      notifies,
-      sections,
-      boneCount,
-      socketCount,
-      slotCount,
-      curveCount,
-      refMontage: props.ReferenceMontage?.AssetPathName || "",
-    });
-  }
-  return moves;
-}
+import { useState, useEffect, useRef, useCallback, useMemo, useContext } from "react";
+import { AppContext } from "./App.jsx";
+import {
+  FPS, CATEGORY_LABELS,
+  cleanNotifyName, classifyNotify,
+  parseAsset, deriveAttackStats,
+} from "./frameDataParser.js";
 
 // ============================================================
 // STYLES — adopts MVSI tokens, adds frame-data-specific layout
@@ -415,6 +310,207 @@ const FRAMEDATA_STYLES = `
     font-weight: 500;
   }
 
+  /* SMASH-STYLE FRAME DATA — primary view */
+  .fd-stat-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .fd-stat-tile {
+    background: var(--bg2);
+    padding: 16px 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .fd-stat-tile::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--tile-tint, rgba(99,102,241,0.06)) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .fd-stat-tile-value {
+    font-family: var(--font-display);
+    font-size: 32px; font-weight: 700; line-height: 1;
+    color: var(--tile-color, var(--text0));
+    text-shadow: 0 0 18px var(--tile-glow, rgba(99,102,241,0.3));
+    position: relative;
+  }
+  .fd-stat-tile-value.unit {
+    font-size: 26px;
+  }
+  .fd-stat-tile-value.empty {
+    color: var(--text3);
+    text-shadow: none;
+    font-size: 26px;
+    font-weight: 400;
+  }
+  .fd-stat-tile-label {
+    font-family: var(--font-mono); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--text3); margin-top: 8px;
+    position: relative;
+  }
+  .fd-stat-tile-sub {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--text2); margin-top: 3px;
+    position: relative;
+  }
+
+  /* Frame strip — startup / active / recovery as a colored bar */
+  .fd-strip-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+  }
+  .fd-strip {
+    position: relative;
+    height: 26px;
+    background: var(--bg1);
+    border: 1px solid var(--bg4);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .fd-strip-segment {
+    position: absolute;
+    top: 0; bottom: 0;
+  }
+  .fd-strip-startup {
+    background: linear-gradient(180deg, rgba(148,163,184,0.18), rgba(148,163,184,0.08));
+  }
+  .fd-strip-active {
+    background: linear-gradient(180deg, var(--red), rgba(239,68,68,0.5));
+    box-shadow: 0 0 12px rgba(239,68,68,0.5);
+  }
+  .fd-strip-recovery {
+    background: linear-gradient(180deg, rgba(6,182,212,0.25), rgba(6,182,212,0.12));
+  }
+  .fd-strip-iasa {
+    /* Cancel-window stripe overlaid on top of recovery */
+    position: absolute; top: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(34,197,94,0.18) 0,
+      rgba(34,197,94,0.18) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    border-left: 2px solid var(--green);
+    pointer-events: none;
+  }
+  .fd-strip-faf-marker {
+    position: absolute; top: -4px; bottom: -4px;
+    width: 2px; background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+  .fd-strip-faf-marker::after {
+    content: "FAF";
+    position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 9px; color: var(--green);
+    font-weight: 700; letter-spacing: 0.05em;
+  }
+  .fd-strip-playhead {
+    position: absolute; top: -4px; bottom: -4px;
+    width: 2px; background: var(--gold);
+    box-shadow: 0 0 8px var(--gold);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .fd-strip-axis {
+    display: flex; justify-content: space-between;
+    margin-top: 8px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text3);
+  }
+  .fd-strip-legend {
+    display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;
+  }
+  .fd-strip-key {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text2);
+  }
+  .fd-strip-key-swatch {
+    width: 14px; height: 10px; border-radius: 2px;
+  }
+
+  /* Hitbox table — Smash-style per-hit breakdown */
+  .fd-hitbox-section { margin-bottom: 16px; }
+  .fd-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+  }
+  .fd-section-title {
+    font-family: var(--font-display); font-size: 13px;
+    text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--text2); font-weight: 600;
+  }
+  .fd-source-tag {
+    font-family: var(--font-mono); font-size: 10px;
+    padding: 3px 9px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .fd-source-derived {
+    background: rgba(99,102,241,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(99,102,241,0.25);
+  }
+  .fd-source-manual {
+    background: rgba(245,158,11,0.1);
+    color: var(--gold);
+    border: 1px solid rgba(245,158,11,0.25);
+  }
+  .fd-source-missing {
+    background: transparent;
+    color: var(--text3);
+    border: 1px dashed var(--bg4);
+  }
+  .fd-hitbox-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--bg2); border: 1px solid var(--line);
+    border-radius: var(--r); overflow: hidden;
+    font-family: var(--font-mono); font-size: 12px;
+  }
+  .fd-hitbox-table th {
+    background: var(--bg3);
+    padding: 9px 12px; text-align: left;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-display); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--cyan); font-weight: 600;
+    white-space: nowrap;
+  }
+  .fd-hitbox-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(99,102,241,0.05);
+    color: var(--text1);
+  }
+  .fd-hitbox-table tr:last-child td { border-bottom: none; }
+  .fd-hitbox-table .frame-range { color: var(--accent3); font-weight: 600; }
+  .fd-hitbox-table .dmg { color: var(--gold); font-weight: 700; text-align: right; }
+  .fd-hitbox-table .num { color: var(--text1); text-align: right; }
+  .fd-hitbox-table .empty-cell { color: var(--text3); text-align: right; }
+
+  .fd-stats-empty-hint {
+    background: rgba(245,158,11,0.04);
+    border: 1px dashed rgba(245,158,11,0.3);
+    border-radius: var(--r);
+    padding: 14px 18px;
+    font-size: 12px; color: var(--text2); line-height: 1.7;
+  }
+  .fd-stats-empty-hint strong { color: var(--gold); }
+  .fd-stats-empty-hint code {
+    background: var(--bg1); padding: 2px 6px; border-radius: 3px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent3);
+  }
+
   .fd-loading {
     padding: 40px 20px; text-align: center; color: var(--text3);
     font-family: var(--font-mono); font-size: 12px;
@@ -427,11 +523,14 @@ const FRAMEDATA_STYLES = `
 // ============================================================
 
 export function FrameDataTab() {
-  // ── Data state ──
-  const [movesById, setMovesById] = useState(new Map());
-  const [mediaByMoveId, setMediaByMoveId] = useState(new Map());
+  const { state, dispatch } = useContext(AppContext);
+  const fd = state.frameData;
+  const movesById = fd.moves;
+  const mediaByMoveId = fd.media;
+  const statsByMoveId = fd.stats;
+
+  // ── Local UI state (not lifted) ──
   const [selectedId, setSelectedId] = useState(null);
-  const [loadStatus, setLoadStatus] = useState("loading"); // "loading" | "ready" | "empty"
 
   // ── Playback state ──
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -447,33 +546,59 @@ export function FrameDataTab() {
   const scrubTrackRef = useRef(null);
   const objectUrlsRef = useRef([]);
 
-  const move = movesById.get(selectedId);
+  // Derive loadStatus and effective selected move during render
+  // (avoids setState-in-effect anti-pattern from React 19 strict rules)
+  const moveIds = Object.keys(movesById);
+  const loadStatus = !fd.initialized ? "loading"
+                  : moveIds.length === 0 ? "empty"
+                  : "ready";
+  // Effective ID: user's last click if it still exists, else auto-pick first
+  // move with media, else first move.
+  const effectiveId = (selectedId && movesById[selectedId])
+    ? selectedId
+    : (Object.keys(mediaByMoveId).find(id => movesById[id]) || moveIds[0] || null);
+  const move = effectiveId ? movesById[effectiveId] : null;
 
-  // ── Manifest loader ──
+  // ── Manifest loader (one-shot on mount if not already initialized) ──
   useEffect(() => {
+    if (fd.initialized) return;
+
     let cancelled = false;
+    const baseUrl = import.meta.env.BASE_URL || "/";
+    const resolveUrl = (p) =>
+      p.startsWith("/") || /^https?:/i.test(p) ? p : baseUrl + p;
+
     (async () => {
       try {
-        const res = await fetch("data/manifest.json");
+        const res = await fetch(baseUrl + "data/manifest.json");
         if (!res.ok) throw new Error("manifest missing");
         const manifest = await res.json();
-        const newMoves = new Map();
-        const newMedia = new Map();
+        const newMoves = {};
+        const newMedia = {};
+        const newStats = {};
         for (const entry of (manifest.moves || [])) {
           try {
-            const r = await fetch(entry.data);
+            const r = await fetch(resolveUrl(entry.data));
             if (!r.ok) continue;
             const json = await r.json();
             const parsed = parseAsset(json);
             for (const m of parsed) {
-              newMoves.set(m.id, m);
+              newMoves[m.id] = m;
               if (entry.media) {
-                newMedia.set(m.id, {
-                  url: entry.media,
+                newMedia[m.id] = {
+                  url: resolveUrl(entry.media),
                   type: /\.(mp4|webm|mov|m4v)$/i.test(entry.media) ? "video" : "image",
                   name: entry.media.split("/").pop(),
                   persisted: true,
-                });
+                };
+              }
+              if (entry.stats) {
+                try {
+                  const sr = await fetch(resolveUrl(entry.stats));
+                  if (sr.ok) newStats[m.id] = await sr.json();
+                } catch (e) {
+                  console.warn("[FrameData] stats sidecar failed", entry.stats, e);
+                }
               }
             }
           } catch (e) {
@@ -481,31 +606,25 @@ export function FrameDataTab() {
           }
         }
         if (cancelled) return;
-        if (newMoves.size === 0) {
-          setLoadStatus("empty");
-          return;
-        }
-        setMovesById(newMoves);
-        setMediaByMoveId(newMedia);
-        // Prefer a move with media for initial selection
-        let preferred = null;
-        for (const [id] of newMedia) {
-          if (newMoves.has(id)) { preferred = id; break; }
-        }
-        if (!preferred) preferred = newMoves.keys().next().value;
-        setSelectedId(preferred);
-        setLoadStatus("ready");
+        dispatch({
+          type: "FRAMEDATA_INIT",
+          payload: { moves: newMoves, media: newMedia, stats: newStats },
+        });
       } catch {
-        if (!cancelled) setLoadStatus("empty");
+        if (!cancelled) {
+          dispatch({ type: "FRAMEDATA_INIT", payload: { moves: {}, media: {}, stats: {} } });
+        }
       }
     })();
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Cleanup object URLs on unmount ──
-  useEffect(() => () => {
-    objectUrlsRef.current.forEach(u => URL.revokeObjectURL(u));
-  }, []);
+  // NOTE: we deliberately do NOT revoke these blob URLs on unmount.
+  // They're referenced by the global frameData.media state, which outlives
+  // this component. Revoking them on tab-change kills any video playback
+  // when you come back to the tab (the URL becomes dead → black box).
+  // Browser frees them automatically on page reload.
 
   // ── Playback loop ──
   useEffect(() => {
@@ -625,32 +744,31 @@ export function FrameDataTab() {
     const url = URL.createObjectURL(file);
     objectUrlsRef.current.push(url);
     const isVideo = file.type.startsWith("video/");
-    setMediaByMoveId(prev => {
-      const next = new Map(prev);
-      const old = next.get(id);
-      if (old && !old.persisted) URL.revokeObjectURL(old.url);
-      next.set(id, {
-        url, type: isVideo ? "video" : "image",
-        name: file.name, persisted: false,
-      });
-      return next;
+    // Revoke previous user-uploaded blob if any
+    const old = mediaByMoveId[id];
+    if (old && !old.persisted) URL.revokeObjectURL(old.url);
+    dispatch({
+      type: "FRAMEDATA_ATTACH_MEDIA",
+      payload: {
+        moveId: id,
+        media: {
+          url, type: isVideo ? "video" : "image",
+          name: file.name, persisted: false,
+        },
+      },
     });
-  }, []);
+  }, [dispatch, mediaByMoveId]);
 
   const detachMedia = useCallback((id) => {
-    setMediaByMoveId(prev => {
-      const next = new Map(prev);
-      const old = next.get(id);
-      if (old && !old.persisted) URL.revokeObjectURL(old.url);
-      next.delete(id);
-      return next;
-    });
-  }, []);
+    const old = mediaByMoveId[id];
+    if (old && !old.persisted) URL.revokeObjectURL(old.url);
+    dispatch({ type: "FRAMEDATA_DETACH_MEDIA", payload: id });
+  }, [dispatch, mediaByMoveId]);
 
   // ── Group moves by character for sidebar ──
   const byCharacter = useMemo(() => {
     const out = {};
-    for (const m of movesById.values()) {
+    for (const m of Object.values(movesById)) {
       if (!out[m.character]) out[m.character] = [];
       out[m.character].push(m);
     }
@@ -729,7 +847,8 @@ export function FrameDataTab() {
           {move ? (
             <MoveDetail
               move={move}
-              media={mediaByMoveId.get(move.id)}
+              media={mediaByMoveId[move.id]}
+              manualStats={statsByMoveId[move.id]}
               currentFrame={currentFrame}
               isPlaying={isPlaying}
               showDetails={showDetails}
@@ -763,7 +882,7 @@ export function FrameDataTab() {
 // ============================================================
 
 function MoveDetail({
-  move, media, currentFrame, isPlaying, showDetails,
+  move, media, manualStats, currentFrame, isPlaying, showDetails,
   onTogglePlay, onFrameInput, onScrubMouseDown, scrubTrackRef, videoRef,
   onAttachMedia, onDetachMedia, onToggleDetails, setTooltip, onNotifyClick,
 }) {
@@ -775,7 +894,10 @@ function MoveDetail({
   const totalSec = Math.max(move.durationSec, 0.001);
   const totalFrames = move.durationFrames;
 
-  // Group notifies by track
+  // Derive frame data (startup, active, recovery, FAF) from notifies
+  const attackStats = useMemo(() => deriveAttackStats(move), [move]);
+
+  // Group notifies by track (used in the collapsible details panel)
   const tracks = useMemo(() => {
     const t = {};
     for (const n of move.notifies) {
@@ -830,7 +952,7 @@ function MoveDetail({
         {media ? (
           <>
             {media.type === "video" ? (
-              <video ref={videoRef} src={media.url} loop muted playsInline />
+              <video ref={videoRef} src={media.url} muted playsInline loop />
             ) : (
               <img src={media.url} alt={move.action} />
             )}
@@ -887,71 +1009,202 @@ function MoveDetail({
         </div>
       </div>
 
-      {/* Multi-track timeline */}
-      {trackKeys.length > 0 && (
-        <div className="fd-timeline">
-          <div className="fd-tl-header">
-            <span className="fd-tl-label">Notify Tracks</span>
-            <div className="fd-tl-legend">
-              <div className="fd-legend-item">
-                <span className="fd-legend-swatch" style={{ background: "rgba(245,158,11,0.3)", borderColor: "var(--gold)" }} />Hitbox
+      {/* Smash-style frame data view (only for attacks with derivable stats) */}
+      {attackStats && (
+        <>
+          {/* Big stat tiles */}
+          <div className="fd-stat-tiles">
+            <div className="fd-stat-tile" style={{
+              "--tile-color": "var(--gold)",
+              "--tile-glow": "rgba(245,158,11,0.4)",
+              "--tile-tint": "rgba(245,158,11,0.06)",
+            }}>
+              <div className="fd-stat-tile-value">{attackStats.startup}</div>
+              <div className="fd-stat-tile-label">Startup</div>
+              <div className="fd-stat-tile-sub">first hit on f{attackStats.startup}</div>
+            </div>
+            <div className="fd-stat-tile" style={{
+              "--tile-color": "var(--red)",
+              "--tile-glow": "rgba(239,68,68,0.4)",
+              "--tile-tint": "rgba(239,68,68,0.06)",
+            }}>
+              <div className="fd-stat-tile-value">{attackStats.active}</div>
+              <div className="fd-stat-tile-label">Active</div>
+              <div className="fd-stat-tile-sub">{attackStats.hitboxCount} hitbox{attackStats.hitboxCount === 1 ? "" : "es"}</div>
+            </div>
+            <div className="fd-stat-tile" style={{
+              "--tile-color": "var(--cyan)",
+              "--tile-glow": "rgba(6,182,212,0.4)",
+              "--tile-tint": "rgba(6,182,212,0.06)",
+            }}>
+              <div className="fd-stat-tile-value">{attackStats.recovery}</div>
+              <div className="fd-stat-tile-label">Recovery</div>
+              <div className="fd-stat-tile-sub">end-lag frames</div>
+            </div>
+            <div className="fd-stat-tile" style={{
+              "--tile-color": "var(--text0)",
+              "--tile-glow": "rgba(99,102,241,0.3)",
+            }}>
+              <div className="fd-stat-tile-value">{attackStats.total}</div>
+              <div className="fd-stat-tile-label">Total</div>
+              <div className="fd-stat-tile-sub">{(attackStats.total / FPS).toFixed(2)}s</div>
+            </div>
+            <div className="fd-stat-tile" style={{
+              "--tile-color": attackStats.faf != null ? "var(--green)" : "var(--text3)",
+              "--tile-glow": attackStats.faf != null ? "rgba(34,197,94,0.4)" : "transparent",
+              "--tile-tint": attackStats.faf != null ? "rgba(34,197,94,0.06)" : "transparent",
+            }}>
+              <div className={`fd-stat-tile-value ${attackStats.faf == null ? "empty" : ""}`}>
+                {attackStats.faf != null ? attackStats.faf : "—"}
               </div>
-              <div className="fd-legend-item">
-                <span className="fd-legend-swatch" style={{ background: "rgba(6,182,212,0.25)", borderColor: "var(--cyan)" }} />Cancel/Branch
-              </div>
-              <div className="fd-legend-item">
-                <span className="fd-legend-swatch" style={{ background: "rgba(99,102,241,0.25)", borderColor: "var(--accent)" }} />Other
+              <div className="fd-stat-tile-label">FAF</div>
+              <div className="fd-stat-tile-sub">
+                {attackStats.faf != null ? "earliest cancel" : "no cancel window"}
               </div>
             </div>
+            {manualStats?.killPercent != null && (
+              <div className="fd-stat-tile" style={{
+                "--tile-color": "var(--red)",
+                "--tile-glow": "rgba(239,68,68,0.4)",
+                "--tile-tint": "rgba(239,68,68,0.06)",
+              }}>
+                <div className="fd-stat-tile-value unit">{manualStats.killPercent}%</div>
+                <div className="fd-stat-tile-label">Kills @</div>
+                <div className="fd-stat-tile-sub">center stage</div>
+              </div>
+            )}
           </div>
-          <div className="fd-tl-tracks">
-            {trackKeys.map(tk => (
-              <div key={tk} className="fd-tl-row">
-                <span className="fd-tl-row-label">T{tk}</span>
-                <div className="fd-tl-content">
-                  {tracks[tk].map((n, i) => {
-                    const startPct = (n.startSec / totalSec) * 100;
-                    const endPct = (n.endSec / totalSec) * 100;
-                    const isRange = n.endSec > n.startSec + 0.001;
-                    const cls = classifyNotify(n.name);
-                    const extra = cls === "hitbox" ? "is-hitbox" : (cls === "branch" ? "is-branch" : "");
-                    const cleanName = cleanNotifyName(n.name);
-                    const tooltipText = `${cleanName} · f${n.startFrame}${isRange ? "–f" + n.endFrame : ""}`;
-                    const inWindow = currentFrame >= n.startFrame &&
-                                     currentFrame <= Math.max(n.startFrame, n.endFrame);
-                    const onEnter = (e) => setTooltip({ text: tooltipText, x: e.clientX, y: e.clientY });
-                    const onLeave = () => setTooltip(null);
-                    if (isRange) {
-                      return (
-                        <div key={i}
-                             className={`fd-tl-bar ${extra} ${inWindow ? "active" : ""}`}
-                             style={{ left: startPct + "%", width: Math.max(0.5, endPct - startPct) + "%" }}
-                             onClick={() => onNotifyClick(n.startFrame)}
-                             onMouseEnter={onEnter}
-                             onMouseLeave={onLeave}>
-                          <span className="fd-tl-bar-label">{cleanName}</span>
-                        </div>
-                      );
-                    }
-                    return (
-                      <div key={i}
-                           className={`fd-tl-pip ${extra} ${inWindow ? "active" : ""}`}
-                           style={{ left: startPct + "%" }}
-                           onClick={() => onNotifyClick(n.startFrame)}
-                           onMouseEnter={onEnter}
-                           onMouseLeave={onLeave} />
-                    );
-                  })}
+
+          {/* Frame strip — colored bar showing startup / active / recovery */}
+          <div className="fd-strip-wrap">
+            <div className="fd-strip">
+              <div className="fd-strip-segment fd-strip-startup"
+                   style={{ left: 0, width: (attackStats.startup / totalFrames) * 100 + "%" }} />
+              {attackStats.activeWindows.map((w, i) => (
+                <div key={i} className="fd-strip-segment fd-strip-active"
+                     style={{
+                       left: (w.startFrame / totalFrames) * 100 + "%",
+                       width: Math.max(0.8, ((w.endFrame - w.startFrame + 1) / totalFrames) * 100) + "%",
+                     }} />
+              ))}
+              <div className="fd-strip-segment fd-strip-recovery"
+                   style={{
+                     left: ((Math.max(...attackStats.activeWindows.map(w => w.endFrame)) + 1) / totalFrames) * 100 + "%",
+                     right: 0,
+                   }} />
+              {attackStats.faf != null && (
+                <>
+                  <div className="fd-strip-segment fd-strip-iasa"
+                       style={{
+                         left: (attackStats.faf / totalFrames) * 100 + "%",
+                         right: 0,
+                       }} />
+                  <div className="fd-strip-faf-marker"
+                       style={{ left: (attackStats.faf / totalFrames) * 100 + "%" }} />
+                </>
+              )}
+              <div className="fd-strip-playhead"
+                   style={{ left: playheadPct + "%" }} />
+            </div>
+            <div className="fd-strip-axis">
+              {axisMarks.map(f => <span key={f}>f{f}</span>)}
+            </div>
+            <div className="fd-strip-legend">
+              <div className="fd-strip-key">
+                <span className="fd-strip-key-swatch"
+                      style={{ background: "rgba(148,163,184,0.18)" }} /> Startup
+              </div>
+              <div className="fd-strip-key">
+                <span className="fd-strip-key-swatch"
+                      style={{ background: "var(--red)" }} /> Active
+              </div>
+              <div className="fd-strip-key">
+                <span className="fd-strip-key-swatch"
+                      style={{ background: "rgba(6,182,212,0.25)" }} /> Recovery
+              </div>
+              {attackStats.faf != null && (
+                <div className="fd-strip-key">
+                  <span className="fd-strip-key-swatch"
+                        style={{ background: "rgba(34,197,94,0.3)", borderLeft: "2px solid var(--green)" }} /> Cancel window
                 </div>
-              </div>
-            ))}
-            <div className="fd-tl-playhead-zone">
-              <div className="fd-tl-playhead" style={{ left: playheadPct + "%" }} />
+              )}
             </div>
           </div>
-          <div className="fd-tl-axis">
-            {axisMarks.map(f => <span key={f}>f{f}</span>)}
+
+          {/* Hitbox table */}
+          <div className="fd-hitbox-section">
+            <div className="fd-section-head">
+              <span className="fd-section-title">Hitboxes</span>
+              <span className={`fd-source-tag ${manualStats?.hitboxes ? "fd-source-manual" : "fd-source-derived"}`}>
+                {manualStats?.hitboxes ? "Manual stats" : "Frame timing only"}
+              </span>
+            </div>
+            <table className="fd-hitbox-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Frames</th>
+                  <th>Active</th>
+                  <th>Damage</th>
+                  <th>Angle</th>
+                  <th>BKB</th>
+                  <th>KBG</th>
+                  <th>Hitstun</th>
+                  <th>Blockstun</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attackStats.activeWindows.map((w, i) => {
+                  const ms = manualStats?.hitboxes?.[i] || {};
+                  const fmt = (v, suffix = "") => v != null ? `${v}${suffix}` : <span className="empty-cell">—</span>;
+                  return (
+                    <tr key={i}>
+                      <td className="num">{i + 1}</td>
+                      <td className="frame-range">f{w.startFrame}–f{w.endFrame}</td>
+                      <td className="num">{w.duration}</td>
+                      <td className="dmg">{ms.damage != null ? `${ms.damage}%` : <span className="empty-cell">—</span>}</td>
+                      <td className="num">{fmt(ms.knockbackAngle, "°")}</td>
+                      <td className="num">{fmt(ms.knockbackBase)}</td>
+                      <td className="num">{fmt(ms.knockbackScale)}</td>
+                      <td className="num">{fmt(ms.hitstun)}</td>
+                      <td className="num">{fmt(ms.blockstun)}</td>
+                      <td style={{ color: "var(--text2)", fontSize: 11 }}>{ms.notes || ""}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!manualStats?.hitboxes && (
+              <div className="fd-stats-empty-hint" style={{ marginTop: 10 }}>
+                <strong>Want damage / KB / hitstun values?</strong> Drop a stats sidecar JSON into{" "}
+                <code>public/data/</code> and reference it from <code>manifest.json</code>:
+                <pre style={{
+                  fontFamily: "var(--font-mono)", fontSize: 11, marginTop: 8,
+                  background: "var(--bg1)", padding: "10px 12px", borderRadius: "var(--r)",
+                  border: "1px solid var(--line)", color: "var(--text1)", overflow: "auto",
+                }}>{`{ "data": "data/${move.id}.json",
+  "media": "media/${move.character}_${move.action.replace(/ /g, "")}.mp4",
+  "stats": "data/${move.id}.stats.json" }`}</pre>
+                Frame timing (startup, active, recovery, FAF) is already extracted from the JSON — only the per-hitbox damage/KB needs to be entered.
+              </div>
+            )}
           </div>
+
+          {manualStats?.notes && (
+            <div className="fd-stats-empty-hint" style={{ marginBottom: 14 }}>
+              <strong>Notes:</strong> {manualStats.notes}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Non-attack moves: simple "no frame data" notice */}
+      {!attackStats && (
+        <div className="fd-stats-empty-hint" style={{ marginBottom: 14 }}>
+          <strong>No attack frame data.</strong> This is a <em>{categoryLabel.toLowerCase()}</em> animation
+          — Smash-style frame data (startup, active, recovery, damage, knockback)
+          only applies to attack moves.
         </div>
       )}
 
@@ -963,6 +1216,74 @@ function MoveDetail({
       </button>
       {showDetails && (
         <div className="fd-details-content">
+          {/* Multi-track timeline (technical view, secondary to Smash-style frame data above) */}
+          {trackKeys.length > 0 && (
+            <div className="fd-timeline" style={{ marginBottom: 16 }}>
+              <div className="fd-tl-header">
+                <span className="fd-tl-label">Notify Tracks (raw asset view)</span>
+                <div className="fd-tl-legend">
+                  <div className="fd-legend-item">
+                    <span className="fd-legend-swatch" style={{ background: "rgba(245,158,11,0.3)", borderColor: "var(--gold)" }} />Hitbox
+                  </div>
+                  <div className="fd-legend-item">
+                    <span className="fd-legend-swatch" style={{ background: "rgba(6,182,212,0.25)", borderColor: "var(--cyan)" }} />Cancel/Branch
+                  </div>
+                  <div className="fd-legend-item">
+                    <span className="fd-legend-swatch" style={{ background: "rgba(99,102,241,0.25)", borderColor: "var(--accent)" }} />Other
+                  </div>
+                </div>
+              </div>
+              <div className="fd-tl-tracks">
+                {trackKeys.map(tk => (
+                  <div key={tk} className="fd-tl-row">
+                    <span className="fd-tl-row-label">T{tk}</span>
+                    <div className="fd-tl-content">
+                      {tracks[tk].map((n, i) => {
+                        const startPct = (n.startSec / totalSec) * 100;
+                        const endPct = (n.endSec / totalSec) * 100;
+                        const isRange = n.endSec > n.startSec + 0.001;
+                        const cls = classifyNotify(n.name);
+                        const extra = cls === "hitbox" ? "is-hitbox" : (cls === "branch" ? "is-branch" : "");
+                        const cleanName = cleanNotifyName(n.name);
+                        const tooltipText = `${cleanName} · f${n.startFrame}${isRange ? "–f" + n.endFrame : ""}`;
+                        const inWindow = currentFrame >= n.startFrame &&
+                                         currentFrame <= Math.max(n.startFrame, n.endFrame);
+                        const onEnter = (e) => setTooltip({ text: tooltipText, x: e.clientX, y: e.clientY });
+                        const onLeave = () => setTooltip(null);
+                        if (isRange) {
+                          return (
+                            <div key={i}
+                                 className={`fd-tl-bar ${extra} ${inWindow ? "active" : ""}`}
+                                 style={{ left: startPct + "%", width: Math.max(0.5, endPct - startPct) + "%" }}
+                                 onClick={() => onNotifyClick(n.startFrame)}
+                                 onMouseEnter={onEnter}
+                                 onMouseLeave={onLeave}>
+                              <span className="fd-tl-bar-label">{cleanName}</span>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div key={i}
+                               className={`fd-tl-pip ${extra} ${inWindow ? "active" : ""}`}
+                               style={{ left: startPct + "%" }}
+                               onClick={() => onNotifyClick(n.startFrame)}
+                               onMouseEnter={onEnter}
+                               onMouseLeave={onLeave} />
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+                <div className="fd-tl-playhead-zone">
+                  <div className="fd-tl-playhead" style={{ left: playheadPct + "%" }} />
+                </div>
+              </div>
+              <div className="fd-tl-axis">
+                {axisMarks.map(f => <span key={f}>f{f}</span>)}
+              </div>
+            </div>
+          )}
+
           <div className="card" style={{ marginBottom: 16 }}>
             <div className="card-title">Animation Stats</div>
             <div className="fd-data-grid">

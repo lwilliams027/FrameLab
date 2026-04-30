@@ -1,24 +1,25 @@
 # MVSI — MultiVersus Combo Intelligence
 
 A React + Vite single-page app for cataloging combos, visualizing them as
-interactive flowcharts, comparing characters, and now — viewing animation
-frame data exported from the game's Unreal Engine assets.
+interactive flowcharts, comparing characters, and viewing animation
+frame data extracted from the game's Unreal Engine assets.
 
-## What's in here
+## Tabs
 
-**Combo Intelligence (the original)**
-- **Dashboard** — combo browser with character/kill-confirm filters
+- **Dashboard** — combo browser with character / kill-confirm filters
 - **Builder** — form-based combo editor with live flowchart preview
 - **Flowcharts** — full-screen interactive SVG flowchart viewer with DI branches
-- **Kill Confirms** — sortable table of all kill confirms with detail panel
+- **Kill Confirms** — sortable kill-confirm table with detail panel
 - **Compare** — head-to-head and global kill comparison with radar charts
-- **Analytics** — bar/scatter charts comparing characters
-- **Import / Export** — JSON validation and round-trip
-
-**Frame Data (new)**
-- **Frame Data** — viewer for `PfgFixedAnimDataAsset` JSON exports paired
-  with gameplay capture videos. Multi-track timeline of notify events,
-  60fps scrubber, hitbox/cancel-window color coding.
+- **Analytics** — bar / scatter charts comparing characters
+- **Frame Data** — Smash-style frame data view (startup, active, recovery,
+- **Move Studio** — drop any video and get auto-zoom motion detection,
+  1/10× slow-mo, draggable A/B trim, and one-click export of the
+  trimmed slow-mo zoomed clip as a downloadable video file
+  FAF, hitbox damage, knockback) with synced gameplay video and a
+  draggable 60fps scrubber
+- **Import / Export** — JSON validation and round-trip for both combos
+  and frame data
 
 ## Running locally
 
@@ -27,65 +28,125 @@ npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`). The Frame Data
-tab loads its data from `public/data/manifest.json` on mount.
+Open the URL Vite prints (usually `http://localhost:5173/MVSIFrameData/`).
 
-## Building for production
+## Building for GitHub Pages
 
-```bash
-npm run build
-npm run preview   # to test the build locally
-```
+`vite.config.js` is set to `base: '/MVSIFrameData/'` for the existing
+GitHub repo. If you fork or rename, change that to match your repo name.
 
-The output in `dist/` can be deployed to any static host (GitHub Pages,
-Netlify, Vercel, S3 + CloudFront, etc.).
+A GitHub Actions workflow at `.github/workflows/deploy.yml` builds and
+deploys automatically on every push to `main`. After pushing, set
+**Settings → Pages → Source** to **GitHub Actions** in the repo. Within
+~90 seconds the site is live at `https://<user>.github.io/MVSIFrameData/`.
 
 ## Adding more frame data
 
-1. Drop the `_Montage_FAD.json` export into `public/data/`
-2. (Optional) Drop the gameplay capture into `public/media/`
-3. Append an entry to `public/data/manifest.json`:
+Three ways, depending on whether you want it permanently in the repo or
+just for the current session.
+
+### Permanent (committed to the repo)
+
+Each move needs three things:
+
+1. **Asset JSON** — the `PfgFixedAnimDataAsset` export, in `public/data/`
+2. **Gameplay video** — `.mp4` / `.webm` / `.gif`, in `public/media/`
+3. **Optional stats sidecar** — manually-entered damage / knockback /
+   hitstun, in `public/data/`
+
+Then add an entry to `public/data/manifest.json`:
 
 ```json
 {
   "moves": [
     {
-      "data": "data/Mvs_Banana_Attack_NeutralAir_Montage_FAD.json",
-      "media": "media/Mvs_Banana_NeutralAir.mp4"
+      "data":  "data/Mvs_Banana_Attack_NeutralAir_Montage_FAD.json",
+      "media": "media/Mvs_Banana_NeutralAir.mp4",
+      "stats": "data/Mvs_Banana_Attack_NeutralAir_Montage_FAD.stats.json"
     }
   ]
 }
 ```
 
-The roster sidebar groups by character automatically based on the filename
-pattern `Mvs_<Character>_<Category>_<Action>_Montage_FAD`.
+### Session-only (Import / Export tab)
 
-Recognized categories: `Nav` (movement), `Attack` / `Atk`, `Sig`
-(signature), `Hit` (reaction), `Def` (defense), `Tnt` (taunt), `Emo` (emote).
+Open the **Import / Export** tab and drop files onto the **Frame Data**
+drop zone. Supported file types:
 
-## What changed in this version
+- Asset JSON (`*_Montage_FAD.json`) — the move definition
+- Video / GIF (`.mp4`, `.webm`, `.gif`) — paired by base name
+- Stats sidecar (`*.stats.json`) — manual damage / KB values
+- A previously-exported bundle JSON
 
-- **Added the missing `src/main.jsx`** entry point. Without it the app
-  would not boot — `index.html` references `/src/main.jsx` but that file
-  was not in the previous distribution.
-- **Added `src/FrameDataTab.jsx`**, a new tab that loads MultiVersus
-  animation assets from a manifest, plays them alongside captured video,
-  and shows notify events on a multi-track timeline (color-coded for
-  hitboxes / cancel windows / other).
-- **Added the `Frame Data` tab** to the navigation in `App.jsx`.
-- **Added two example frame-data files** plus an Arya combo capture in
-  `public/data/` and `public/media/`.
+**Validation rule.** Dropping a video without either (a) a matching
+asset JSON in the same drop, or (b) an already-loaded move with a
+matching base name, will be **rejected**. The intent is that uploading
+a GIF without telling the app what move it represents shouldn't
+silently succeed.
 
-## Frame Data limitations
+Session-uploaded data lives in memory and is lost on reload. To save it,
+click **Download Bundle JSON** in the same panel — that produces a
+single file containing every loaded asset JSON and stats sidecar.
 
-- **Hitbox geometry** (size, knockback angle, damage) is not in the
-  montage exports — it lives in separate `BoxComponent` or `HitboxData`
-  assets. The tab shows hitbox notify *windows* but not their physical
-  shape. If you can export those sibling assets, the parser can be
-  extended to merge them.
-- **Per-move uploaded media is in-memory only.** Anything dropped onto
-  the video panel disappears on reload. To make a move's media permanent,
-  put the file in `public/media/` and reference it in the manifest.
+### Bundle import
+
+Drop a previously-exported bundle JSON onto the same drop zone. It's
+auto-detected as a bundle (rather than a single asset) and replaces the
+current state.
+
+## What's auto-derived vs. manual
+
+The Frame Data tab pulls these directly from the asset JSON's notify
+events:
+
+| Field | Source | How |
+|-------|--------|-----|
+| Total frames | derived | `Duration` value, decoded from 32.32 fixed-point |
+| Startup | derived | first frame of any `MvsHitboxSetAnimNotifyState` |
+| Active | derived | total frame count of all hitbox notifies |
+| Recovery | derived | `total - last_active_frame - 1` |
+| FAF (cancel) | derived | earliest `MvsActionBranchNotifyState_Immediate` |
+| Hitbox count | derived | number of hitbox notify windows |
+
+These need a **stats sidecar JSON** (the optional `stats` entry):
+
+| Field | Source |
+|-------|--------|
+| Damage % | manual |
+| Knockback angle / base / scale | manual |
+| Hitstun / blockstun | manual |
+| Kill % | manual |
+| Display name override | manual |
+
+The reason: damage and knockback live in separate `BoxComponent` /
+`HitboxData` Unreal assets that the montage exports don't include.
+
+### Stats sidecar format
+
+Match one entry per derived hitbox window (see the example at
+`public/data/Mvs_Arya_Attack_Combo1_Montage_FAD.stats.json`):
+
+```json
+{
+  "displayName": "Jab 1",
+  "input": "Attack",
+  "killPercent": null,
+  "hitboxes": [
+    {
+      "damage": 7,
+      "knockbackAngle": 45,
+      "knockbackBase": 30,
+      "knockbackScale": 60,
+      "hitstun": 14,
+      "blockstun": 9,
+      "notes": ""
+    }
+  ],
+  "notes": "Combo starter."
+}
+```
+
+`null` fields display as `—` in the table.
 
 ## Keyboard shortcuts (Frame Data tab)
 
@@ -93,10 +154,25 @@ Recognized categories: `Nav` (movement), `Attack` / `Atk`, `Sig`
 - `←` / `→` — step one frame
 - Click or drag the scrubber to seek; type a frame number directly into
   the input
-- Click any notify on the timeline to jump the playhead there
+
+## Project file layout
+
+```
+src/
+  App.jsx              ← combo intelligence (Dashboard, Builder, Compare, etc.)
+                        + ImportExport tab now includes a FrameDataIO panel
+  App.css              ← global tokens / theme
+  FrameDataTab.jsx     ← the Frame Data viewer component
+  frameDataParser.js   ← decoders, parser, deriveAttackStats helper
+  main.jsx             ← React entry point
+public/
+  data/manifest.json   ← list of moves to load on startup
+  data/*.json          ← asset exports + stats sidecars
+  media/*.mp4          ← gameplay captures
+.github/workflows/
+  deploy.yml           ← auto-build and deploy to GitHub Pages
+```
 
 ## Tech stack
 
-React 19 · Vite 8 · Recharts 3 · ESLint 9. No CSS framework — all
-styling lives in `src/App.css` plus inline `<style>` blocks per
-component.
+React 19 · Vite 8 · Recharts 3 · ESLint 9. No CSS framework.

@@ -229,6 +229,22 @@ input, select, textarea { font-family: var(--font-body); outline: none; border: 
 .toast-info { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.3); color: var(--accent3); }
 .toast-warn { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #fcd34d; }
 
+/* Validation shake-and-flash for the orphan-resolve modal */
+@keyframes op-shake-kf {
+  0%, 100% { transform: translateX(0); }
+  15%      { transform: translateX(-9px); }
+  30%      { transform: translateX(8px); }
+  45%      { transform: translateX(-7px); }
+  60%      { transform: translateX(6px); }
+  75%      { transform: translateX(-4px); }
+  90%      { transform: translateX(3px); }
+}
+.op-shake {
+  animation: op-shake-kf 0.55s cubic-bezier(.36,.07,.19,.97);
+  border-color: var(--red) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25), 0 0 16px rgba(239, 68, 68, 0.15);
+}
+
 /* ── Two-col layout ── */
 .two-col { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
 @media(max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
