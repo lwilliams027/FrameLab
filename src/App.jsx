@@ -15,7 +15,7 @@
 
 import { useState, useReducer, useContext, createContext, useCallback, useRef, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { FrameDataTab } from "./FrameDataTab.jsx";
-import { parseAsset as parseFrameDataAsset } from "./frameDataParser.js";
+import { parseAsset as parseFrameDataAsset, buildPlaceholderMoves } from "./frameDataParser.js";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ScatterChart, Scatter, ZAxis, CartesianGrid, Legend,
@@ -28,7 +28,7 @@ import {
 // ============================================================
 
 /** Enum-like constants for all standardised game inputs */
-const ENUM = {
+export const ENUM = {
   ButtonInput:    ["Attack", "Special", "Jump", "Dodge", "Grab", "Throw"],
   InputDirection: ["Neutral", "Forward", "Up", "Down", "Up-Forward", "Down-Forward"],
   MoveType:       ["Grounded", "Aerial", "Projectile", "Status", "Grab", "Throw"],
@@ -2596,75 +2596,20 @@ function FrameDataIO() {
     toast(`Exported ${moveCount} move${moveCount !== 1 ? "s" : ""}`, "success");
   };
 
-  // ── Auto-generate empty placeholder slots for every character × move ──
-  // Creates a placeholder Frame Data move for each combination of
-  // (character × buttonInput × inputDirection) so the user only needs to
-  // attach videos. Skips IDs that already exist so real data isn't blown away.
+  // ── Re-generate empty placeholder slots for every character × move ──
+  // The Frame Data tab seeds these automatically on first load, but if the
+  // user has cleared everything or the seed somehow got out of sync, this
+  // button refills the gaps without overwriting real data.
   const generatePlaceholders = () => {
-    // The slots that actually map to moves people use in combos.
-    // Skipping Throw/Grab buttons (no inputDirection axis) and special-only
-    // categories — keeping it to the standard Attack/Special × 5 directions.
-    const slotPairs = [
-      { button: "Attack",  dir: "Neutral",  label: "Neutral Attack",  type: "Grounded" },
-      { button: "Attack",  dir: "Forward",  label: "Forward Attack",  type: "Grounded" },
-      { button: "Attack",  dir: "Up",       label: "Up Attack",       type: "Grounded" },
-      { button: "Attack",  dir: "Down",     label: "Down Attack",     type: "Grounded" },
-      { button: "Attack",  dir: "Neutral",  label: "Neutral Air",     type: "Aerial",   air: true },
-      { button: "Attack",  dir: "Forward",  label: "Forward Air",     type: "Aerial",   air: true },
-      { button: "Attack",  dir: "Up",       label: "Up Air",          type: "Aerial",   air: true },
-      { button: "Attack",  dir: "Down",     label: "Down Air",        type: "Aerial",   air: true },
-      { button: "Special", dir: "Neutral",  label: "Neutral Special", type: "Grounded" },
-      { button: "Special", dir: "Forward",  label: "Forward Special", type: "Grounded" },
-      { button: "Special", dir: "Up",       label: "Up Special",      type: "Grounded" },
-      { button: "Special", dir: "Down",     label: "Down Special",    type: "Grounded" },
-      { button: "Grab",    dir: "Neutral",  label: "Grab",            type: "Grab" },
-    ];
-
-    // Make IDs deterministic so the same call generates the same slots.
-    const makeId = (char, slot) => {
-      const c = char.replace(/[^A-Za-z0-9]/g, "");
-      const a = (slot.air ? "Air" : "") + slot.label.replace(/\s+/g, "");
-      return `Placeholder_${c}_${a}`;
-    };
-
     const existing = state.frameData.moves || {};
-    const newMoves = {};
-    let added = 0, kept = 0;
-
-    for (const character of ENUM.Characters) {
-      for (const slot of slotPairs) {
-        const id = makeId(character, slot);
-        if (existing[id]) { kept++; continue; }
-        newMoves[id] = {
-          id,
-          character,
-          category: "Attack",
-          action: slot.label,
-          durationSec: 1.0,
-          durationFrames: 60,
-          notifies: [],
-          sections: [],
-          boneCount: 0,
-          socketCount: 0,
-          slotCount: 0,
-          curveCount: 0,
-          refMontage: "",
-          // Mark as placeholder so the UI can style it differently if needed
-          isPlaceholder: true,
-          // Pre-fill the matchup info that maps to combo-builder slots
-          buttonInput: slot.button,
-          inputDirection: slot.dir,
-          moveType: slot.type,
-        };
-        added++;
-      }
-    }
+    const newMoves = buildPlaceholderMoves(ENUM.Characters, existing);
+    const added = Object.keys(newMoves).length;
+    const kept  = Object.keys(existing).length;
 
     if (added === 0) {
       toast(`All ${kept} slots already exist`, "info");
       return;
     }
-
     dispatch({
       type: "FRAMEDATA_REPLACE_ALL",
       payload: {
@@ -2678,15 +2623,17 @@ function FrameDataIO() {
 
   const clearAll = () => {
     if (moveCount === 0) return;
-    if (!confirm(`Remove all ${moveCount} frame data move${moveCount !== 1 ? "s" : ""}? Manifest reload will repopulate on refresh.`)) return;
+    if (!confirm(`Remove all ${moveCount} frame data move${moveCount !== 1 ? "s" : ""}? Placeholder slots will be regenerated automatically.`)) return;
     // Revoke any blob URLs we created
     Object.values(media).forEach(m => {
       if (m && !m.persisted) {
         try { URL.revokeObjectURL(m.url); } catch { /* ignore */ }
       }
     });
-    dispatch({ type: "FRAMEDATA_REPLACE_ALL", payload: { moves: {}, media: {}, stats: {} } });
-    toast("Frame data cleared", "warn");
+    // Reseed placeholders so the sidebar stays populated for every character
+    const placeholders = buildPlaceholderMoves(ENUM.Characters, {});
+    dispatch({ type: "FRAMEDATA_REPLACE_ALL", payload: { moves: placeholders, media: {}, stats: {} } });
+    toast(`Cleared — re-seeded ${Object.keys(placeholders).length} placeholder slots`, "warn");
   };
 
   return (

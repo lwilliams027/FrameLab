@@ -164,3 +164,75 @@ export function deriveAttackStats(move) {
     hitboxCount: hitboxes.length,
   };
 }
+
+// ============================================================
+// Placeholder slot generator
+// ============================================================
+
+/**
+ * Standard fighting-game move slots — one row per (button, direction, type).
+ * Used to seed empty Frame Data entries for every character so users only
+ * need to attach videos.
+ */
+export const PLACEHOLDER_SLOTS = [
+  { button: "Attack",  dir: "Neutral",  label: "Neutral Attack",  type: "Grounded", air: false },
+  { button: "Attack",  dir: "Forward",  label: "Forward Attack",  type: "Grounded", air: false },
+  { button: "Attack",  dir: "Up",       label: "Up Attack",       type: "Grounded", air: false },
+  { button: "Attack",  dir: "Down",     label: "Down Attack",     type: "Grounded", air: false },
+  { button: "Attack",  dir: "Neutral",  label: "Neutral Air",     type: "Aerial",   air: true  },
+  { button: "Attack",  dir: "Forward",  label: "Forward Air",     type: "Aerial",   air: true  },
+  { button: "Attack",  dir: "Up",       label: "Up Air",          type: "Aerial",   air: true  },
+  { button: "Attack",  dir: "Down",     label: "Down Air",        type: "Aerial",   air: true  },
+  { button: "Special", dir: "Neutral",  label: "Neutral Special", type: "Grounded", air: false },
+  { button: "Special", dir: "Forward",  label: "Forward Special", type: "Grounded", air: false },
+  { button: "Special", dir: "Up",       label: "Up Special",      type: "Grounded", air: false },
+  { button: "Special", dir: "Down",     label: "Down Special",    type: "Grounded", air: false },
+  { button: "Grab",    dir: "Neutral",  label: "Grab",            type: "Grab",     air: false },
+];
+
+/**
+ * Build a deterministic placeholder ID for a given character + slot.
+ * Same inputs always produce the same ID so re-running won't duplicate.
+ */
+export function placeholderId(character, slot) {
+  const c = character.replace(/[^A-Za-z0-9]/g, "");
+  const a = (slot.air ? "Air" : "") + slot.label.replace(/\s+/g, "");
+  return `Placeholder_${c}_${a}`;
+}
+
+/**
+ * Build placeholder Frame Data move entries for every (character × slot).
+ * Returns: { [id]: moveObject }
+ *
+ * Pass `existing` (the current state.frameData.moves) to skip IDs already
+ * present — protects real, parsed data from being overwritten.
+ */
+export function buildPlaceholderMoves(characters, existing = {}) {
+  const out = {};
+  for (const character of characters) {
+    for (const slot of PLACEHOLDER_SLOTS) {
+      const id = placeholderId(character, slot);
+      if (existing[id]) continue;
+      out[id] = {
+        id,
+        character,
+        category: "Attack",
+        action: slot.label,
+        durationSec: 1.0,
+        durationFrames: 60,
+        notifies: [],
+        sections: [],
+        boneCount: 0,
+        socketCount: 0,
+        slotCount: 0,
+        curveCount: 0,
+        refMontage: "",
+        isPlaceholder: true,
+        buttonInput: slot.button,
+        inputDirection: slot.dir,
+        moveType: slot.type,
+      };
+    }
+  }
+  return out;
+}

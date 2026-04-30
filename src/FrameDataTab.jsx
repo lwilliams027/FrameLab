@@ -15,11 +15,12 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo, useContext } from "react";
-import { AppContext } from "./App.jsx";
+import { AppContext, ENUM } from "./App.jsx";
 import {
   FPS, CATEGORY_LABELS,
   cleanNotifyName, classifyNotify,
   parseAsset, deriveAttackStats,
+  buildPlaceholderMoves,
 } from "./frameDataParser.js";
 
 // ============================================================
@@ -606,13 +607,26 @@ export function FrameDataTab() {
           }
         }
         if (cancelled) return;
+        // Seed placeholder slots for every character × move so the sidebar
+        // is fully populated from first load. Real moves from the manifest
+        // win — placeholders only fill gaps.
+        const placeholders = buildPlaceholderMoves(ENUM.Characters, newMoves);
         dispatch({
           type: "FRAMEDATA_INIT",
-          payload: { moves: newMoves, media: newMedia, stats: newStats },
+          payload: {
+            moves: { ...placeholders, ...newMoves },
+            media: newMedia,
+            stats: newStats,
+          },
         });
       } catch {
         if (!cancelled) {
-          dispatch({ type: "FRAMEDATA_INIT", payload: { moves: {}, media: {}, stats: {} } });
+          // Manifest missing or failed — still seed every character's slots.
+          const placeholders = buildPlaceholderMoves(ENUM.Characters, {});
+          dispatch({
+            type: "FRAMEDATA_INIT",
+            payload: { moves: placeholders, media: {}, stats: {} },
+          });
         }
       }
     })();
