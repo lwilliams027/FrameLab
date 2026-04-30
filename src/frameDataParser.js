@@ -119,6 +119,121 @@ export function parseAsset(json) {
 }
 
 /**
+ * Parse a UE AnimMontage JSON export (the unbaked source for a FAD).
+ *
+ * The Montage carries MUCH richer notify data than the corresponding FAD —
+ * each notify has a real `Duration` field (the FAD only stores start/end
+ * frame indices), plus object paths to the underlying NotifyState classes
+ * (so we can identify hitbox vs branch vs sound notifies more reliably).
+ *
+ * Returns: { id, durationSec, durationFrames, notifies, compositeSections }
+ *          or null if the JSON didn't contain an AnimMontage.
+ */
+export function parseMontage(json) {
+  const arr = Array.isArray(json) ? json : [json];
+  const montage = arr.find(o => o.Type === "AnimMontage");
+  if (!montage) return null;
+  const props = montage.Properties || {};
+
+  // Montage uses raw seconds (not fixed-point) for these fields
+  const num = (v) => (typeof v === "number" ? v : 0);
+
+  const durationSec = num(props.SequenceLength);
+  const durationFrames = secondsToFrames(durationSec);
+
+  const notifies = (props.Notifies || []).map(n => {
+    const startSec = num(n.TriggerTimeOffset);
+    const dur = num(n.Duration);
+    const endSec = startSec + dur;
+    // Strip the "MvsActionBranchNotifyState_*" / "AnimNotify_*" prefixes so
+    // hitbox/branch detection in FrameDataTab still works the same way.
+    const rawName = n.NotifyName || "Unknown";
+    const cls = n.NotifyStateClass?.ObjectName || n.Notify?.ObjectName || "";
+    return {
+      name: rawName,
+      classObject: cls,
+      startSec, endSec,
+      startFrame: secondsToFrames(Math.max(0, startSec)),
+      endFrame:   secondsToFrames(Math.max(0, endSec)),
+      durationSec: dur,
+      track: n.TrackIndex ?? 0,
+      // Original notify body is preserved for advanced inspectors
+      raw: n,
+    };
+  });
+
+  const compositeSections = (props.CompositeSections || []).map(s => ({
+    name: s.SectionName || "Unnamed",
+    next: s.NextSectionName || "",
+    startSec: num(s.SegmentBeginTime),
+    durationSec: num(s.SegmentLength),
+  }));
+
+  return {
+    id: montage.Name,
+    durationSec,
+    durationFrames,
+    notifies,
+    compositeSections,
+  };
+}
+
+/**
+ * Merge a parsed Montage on top of a parsed move (from parseAsset).
+ *
+ * The FAD's notifies stay as the source of truth for frame indices (they're
+ * baked from animation playback, so most accurate). The Montage's notifies
+ * fill in `durationSec` and `classObject` fields where the FAD lacks them.
+ * Any montage notify NOT present in the FAD gets appended.
+ *
+ * Returns a new move object — does not mutate the input.
+ */
+export function mergeMontageIntoMove(move, montage) {
+  if (!move || !montage) return move;
+
+  const fadCleanNames = move.notifies.map(n => cleanNotifyName(n.name).toLowerCase());
+
+  // Augment FAD notifies with montage extras (duration + classObject)
+  const augmented = move.notifies.map(n => {
+    const cn = cleanNotifyName(n.name).toLowerCase();
+    const m = montage.notifies.find(mm => {
+      const mcn = cleanNotifyName(mm.name).toLowerCase();
+      return mcn === cn && Math.abs(mm.startFrame - n.startFrame) <= 2;
+    });
+    if (!m) return n;
+    return {
+      ...n,
+      durationSec: m.durationSec,
+      classObject: m.classObject,
+    };
+  });
+
+  // Append any montage-only notifies (rare — usually audio events with
+  // negative offsets that don't show up in the FAD)
+  const usedMontageIdxs = new Set();
+  for (let i = 0; i < move.notifies.length; i++) {
+    const cn = cleanNotifyName(move.notifies[i].name).toLowerCase();
+    const idx = montage.notifies.findIndex((mm, mi) => {
+      if (usedMontageIdxs.has(mi)) return false;
+      const mcn = cleanNotifyName(mm.name).toLowerCase();
+      return mcn === cn && Math.abs(mm.startFrame - move.notifies[i].startFrame) <= 2;
+    });
+    if (idx >= 0) usedMontageIdxs.add(idx);
+  }
+  for (let mi = 0; mi < montage.notifies.length; mi++) {
+    if (usedMontageIdxs.has(mi)) continue;
+    augmented.push(montage.notifies[mi]);
+  }
+
+  return {
+    ...move,
+    notifies: augmented,
+    montageSections: montage.compositeSections,
+    hasMontage: true,
+  };
+}
+
+/**
  * Compute fighting-game frame data (startup, active, recovery, FAF) from a
  * move's notify events. Returns null for non-attack moves.
  */

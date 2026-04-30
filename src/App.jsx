@@ -15,7 +15,12 @@
 
 import { useState, useReducer, useContext, createContext, useCallback, useRef, useEffect, useMemo, forwardRef, useImperativeHandle } from "react";
 import { FrameDataTab } from "./FrameDataTab.jsx";
-import { parseAsset as parseFrameDataAsset, buildPlaceholderMoves } from "./frameDataParser.js";
+import {
+  parseAsset as parseFrameDataAsset,
+  parseMontage,
+  mergeMontageIntoMove,
+  buildPlaceholderMoves,
+} from "./frameDataParser.js";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ScatterChart, Scatter, ZAxis, CartesianGrid, Legend,
@@ -2844,6 +2849,24 @@ function FrameDataIO() {
                   URL.revokeObjectURL(url);
                   continue;
                 }
+
+                // Parse the required Montage and merge into the FAD-derived
+                // move so notify durations + class objects are populated.
+                let montageData = null;
+                if (r.montageFile) {
+                  try {
+                    const mtxt = await readText(r.montageFile);
+                    const mjson = JSON.parse(mtxt);
+                    montageData = parseMontage(mjson);
+                    if (!montageData) {
+                      toast(`${r.montageFile.name} has no AnimMontage object`, "warn");
+                    }
+                  } catch (e) {
+                    console.warn("[FrameData] couldn't parse montage", e);
+                    toast(`Couldn't parse ${r.montageFile.name}`, "warn");
+                  }
+                }
+
                 let statsPayload = null;
                 if (r.statsFile) {
                   try { statsPayload = JSON.parse(await readText(r.statsFile)); }
@@ -2854,11 +2877,16 @@ function FrameDataIO() {
                 // name instead of whatever was inside the JSON.
                 const customName = r.name && r.name.trim();
                 // Attach the video to the FIRST parsed move; remaining moves
-                // get the asset and stats but no media.
+                // get the asset and stats but no media. Montage data merges
+                // onto the first move only (it's a 1-to-1 pairing).
                 parsed.forEach((m, idx) => {
-                  const finalMove = (idx === 0 && customName)
-                    ? { ...m, action: customName }
-                    : m;
+                  let finalMove = m;
+                  if (idx === 0 && montageData) {
+                    finalMove = mergeMontageIntoMove(finalMove, montageData);
+                  }
+                  if (idx === 0 && customName) {
+                    finalMove = { ...finalMove, action: customName };
+                  }
                   dispatch({
                     type: "FRAMEDATA_ADD_MOVE",
                     payload: {
@@ -2913,6 +2941,7 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
 
   const jsonInputRef = useRef(null);
   const statsInputRef = useRef(null);
+  const montageInputRef = useRef(null);
 
   // Ref to OrphanPreview so we can pull current zoom/offset/speed at apply time
   const previewRef = useRef(null);
@@ -2952,7 +2981,7 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
     if (!r.type) return false;
     if (r.type === "skip") return true;
     if (r.type === "attach-existing") return !!r.moveId;
-    if (r.type === "upload-json") return !!r.jsonFile;
+    if (r.type === "upload-json") return !!r.jsonFile && !!r.montageFile;
     return false;
   };
 
@@ -2975,7 +3004,7 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
       // Tell the user what's missing — shake and scroll the right box
       if (!r.type) {
         shakeAndScroll(attachSectionRef.current);
-      } else if (r.type === "upload-json" && !r.jsonFile) {
+      } else if (r.type === "upload-json" && (!r.jsonFile || !r.montageFile)) {
         shakeAndScroll(jsonRowRef.current);
       } else if (r.type === "attach-existing" && !r.moveId) {
         shakeAndScroll(existingRowRef.current);
@@ -3149,37 +3178,68 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
               Attach to
             </div>
 
-            {/* Upload JSON */}
-            <label
+            {/* Upload JSON — requires both FAD + Montage */}
+            <div
               ref={jsonRowRef}
               style={{
-                display: "flex", alignItems: "center", gap: 8, padding: "6px 4px",
+                display: "flex", flexDirection: "column", gap: 6,
+                padding: "8px 4px",
                 cursor: "pointer", fontSize: 13,
                 borderRadius: 4,
                 border: "1px solid transparent",
                 transition: "border-color 0.2s",
               }}>
-              <input type="radio" name={`r-${entry.id}`}
-                     checked={r.type === "upload-json"}
-                     onChange={() => setRes({ type: "upload-json" })} />
-              <span style={{ flex: "0 0 auto" }}>Upload asset JSON</span>
-              <button
-                className="btn btn-secondary"
-                style={{ padding: "4px 12px", fontSize: 12, marginLeft: 8 }}
-                onClick={() => jsonInputRef.current?.click()}
-              >
-                {r.jsonFile ? `✓ ${r.jsonFile.name.length > 32 ? r.jsonFile.name.slice(0, 30) + "…" : r.jsonFile.name}` : "Choose .json"}
-              </button>
-              {r.jsonFile && (
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                <input type="radio" name={`r-${entry.id}`}
+                       checked={r.type === "upload-json"}
+                       onChange={() => setRes({ type: "upload-json" })} />
+                <span style={{ flex: "0 0 auto" }}>Upload asset JSONs</span>
+                <span style={{
+                  fontSize: 10, color: "var(--text3)",
+                  fontFamily: "var(--font-mono)", letterSpacing: 0.5,
+                }}>
+                  FAD + Montage required · stats optional
+                </span>
+              </label>
+              <div style={{
+                display: "flex", gap: 8, flexWrap: "wrap",
+                marginLeft: 24,
+              }}>
+                <button
+                  className="btn btn-secondary"
+                  style={{
+                    padding: "4px 12px", fontSize: 12,
+                    borderColor: r.jsonFile ? "var(--green)" : (r.type === "upload-json" ? "var(--gold)" : "var(--line)"),
+                  }}
+                  onClick={() => jsonInputRef.current?.click()}
+                  title="PfgFixedAnimDataAsset JSON (the *_FAD.json file)"
+                >
+                  {r.jsonFile
+                    ? `✓ FAD: ${r.jsonFile.name.length > 26 ? r.jsonFile.name.slice(0, 24) + "…" : r.jsonFile.name}`
+                    : "+ FAD .json *"}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  style={{
+                    padding: "4px 12px", fontSize: 12,
+                    borderColor: r.montageFile ? "var(--green)" : (r.type === "upload-json" ? "var(--gold)" : "var(--line)"),
+                  }}
+                  onClick={() => montageInputRef.current?.click()}
+                  title="AnimMontage JSON (the *_Montage.json file)"
+                >
+                  {r.montageFile
+                    ? `✓ Montage: ${r.montageFile.name.length > 22 ? r.montageFile.name.slice(0, 20) + "…" : r.montageFile.name}`
+                    : "+ Montage .json *"}
+                </button>
                 <button
                   className="btn btn-secondary"
                   style={{ padding: "4px 10px", fontSize: 11 }}
                   onClick={() => statsInputRef.current?.click()}
-                  title="Optional stats sidecar"
+                  title="Optional .stats.json sidecar — adds kill percent and damage info"
                 >
-                  {r.statsFile ? "✓ stats" : "+ stats"}
+                  {r.statsFile ? `✓ stats` : "+ stats"}
                 </button>
-              )}
+              </div>
               <input
                 ref={jsonInputRef}
                 type="file" accept=".json" style={{ display: "none" }}
@@ -3190,15 +3250,24 @@ function ResolveOrphansModal({ pending, moves, onClose, onResolve }) {
                 }}
               />
               <input
+                ref={montageInputRef}
+                type="file" accept=".json" style={{ display: "none" }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) setRes({ type: "upload-json", montageFile: f });
+                  e.target.value = "";
+                }}
+              />
+              <input
                 ref={statsInputRef}
                 type="file" accept=".json" style={{ display: "none" }}
                 onChange={(e) => {
                   const f = e.target.files?.[0];
-                  if (f) setRes({ type: "upload-json", jsonFile: r.jsonFile, statsFile: f });
+                  if (f) setRes({ type: "upload-json", statsFile: f });
                   e.target.value = "";
                 }}
               />
-            </label>
+            </div>
 
             {/* Attach to existing */}
             <label

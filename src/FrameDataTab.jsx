@@ -40,19 +40,45 @@ const FRAMEDATA_STYLES = `
   .fd-roster-empty {
     padding: 32px 16px; text-align: center; color: var(--text3); font-size: 13px;
   }
-  .fd-char-group { margin-bottom: 4px; }
+  .fd-char-group { margin-bottom: 2px; }
   .fd-char-header {
-    display: flex; justify-content: space-between; align-items: center;
+    width: 100%;
+    display: flex; align-items: center; gap: 8px;
     padding: 9px 16px; font-family: var(--font-display); font-size: 14px;
     font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
     color: var(--text1); border-left: 3px solid transparent;
+    background: transparent; border-top: none; border-right: none; border-bottom: none;
+    cursor: pointer; text-align: left;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .fd-char-count {
+  .fd-char-header:hover {
+    background: var(--bg3); color: var(--text0);
+    border-left-color: rgba(99,102,241,0.4);
+  }
+  .fd-char-header.expanded {
+    color: var(--text0);
+    border-left-color: var(--accent);
+    background: rgba(99,102,241,0.05);
+  }
+  .fd-char-chevron {
     font-family: var(--font-mono); font-size: 10px; color: var(--text3);
+    width: 10px; flex-shrink: 0;
+  }
+  .fd-char-header.expanded .fd-char-chevron { color: var(--accent3); }
+  .fd-char-name { flex: 1; }
+  .fd-char-count {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 10px; color: var(--text3);
+  }
+  .fd-char-count > span:last-child {
     background: var(--bg3); padding: 2px 7px; border-radius: 3px;
   }
+  .fd-char-with-media {
+    color: var(--cyan); background: rgba(6,182,212,0.12);
+    padding: 2px 6px; border-radius: 3px; font-size: 9px;
+  }
   .fd-move-item {
-    padding: 6px 16px 6px 24px; font-size: 12px; color: var(--text2);
+    padding: 6px 16px 6px 30px; font-size: 12px; color: var(--text2);
     cursor: pointer; border-left: 3px solid transparent;
     display: flex; align-items: center; gap: 8px;
   }
@@ -60,6 +86,11 @@ const FRAMEDATA_STYLES = `
   .fd-move-item.active {
     background: rgba(99,102,241,0.1); color: var(--accent3);
     border-left-color: var(--accent);
+  }
+  .fd-move-item.placeholder { color: var(--text3); }
+  .fd-move-item.placeholder:hover { color: var(--text2); }
+  .fd-move-media-dot {
+    margin-left: auto; color: var(--cyan); font-size: 10px;
   }
   .fd-cat-tag {
     font-family: var(--font-mono); font-size: 9px; padding: 1px 5px;
@@ -532,6 +563,9 @@ export function FrameDataTab() {
 
   // ── Local UI state (not lifted) ──
   const [selectedId, setSelectedId] = useState(null);
+  // Sidebar: which character groups are expanded. Default: all collapsed
+  // so users see just character names and click to drill in.
+  const [expandedChars, setExpandedChars] = useState(() => new Set());
 
   // ── Playback state ──
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -743,6 +777,26 @@ export function FrameDataTab() {
     setIsPlaying(false);
     setSelectedId(id);
     setCurrentFrame(0);
+    // Auto-expand the character group containing this move so the user
+    // can see what they just selected in the sidebar.
+    const m = movesById[id];
+    if (m?.character) {
+      setExpandedChars(prev => {
+        if (prev.has(m.character)) return prev;
+        const next = new Set(prev);
+        next.add(m.character);
+        return next;
+      });
+    }
+  }, [movesById]);
+
+  const toggleCharExpanded = useCallback((char) => {
+    setExpandedChars(prev => {
+      const next = new Set(prev);
+      if (next.has(char)) next.delete(char);
+      else next.add(char);
+      return next;
+    });
   }, []);
 
   // ── Frame seek ──
@@ -903,22 +957,42 @@ export function FrameDataTab() {
       <div className="fd-layout">
         {/* Sidebar */}
         <aside className="fd-roster">
-          {Object.keys(byCharacter).sort().map(char => (
-            <div key={char} className="fd-char-group">
-              <div className="fd-char-header">
-                <span>{char}</span>
-                <span className="fd-char-count">{byCharacter[char].length}</span>
+          {Object.keys(byCharacter).sort().map(char => {
+            const moves = byCharacter[char];
+            const isExpanded = expandedChars.has(char);
+            // Count how many moves have media attached so the user can see
+            // at a glance which characters have actual data
+            const withMedia = moves.filter(m => mediaByMoveId[m.id]).length;
+            return (
+              <div key={char} className="fd-char-group">
+                <button
+                  className={`fd-char-header ${isExpanded ? "expanded" : ""}`}
+                  onClick={() => toggleCharExpanded(char)}
+                  aria-expanded={isExpanded}
+                >
+                  <span className="fd-char-chevron">{isExpanded ? "▾" : "▸"}</span>
+                  <span className="fd-char-name">{char}</span>
+                  <span className="fd-char-count">
+                    {withMedia > 0 && (
+                      <span className="fd-char-with-media" title={`${withMedia} with video`}>
+                        🎬 {withMedia}
+                      </span>
+                    )}
+                    <span>{moves.length}</span>
+                  </span>
+                </button>
+                {isExpanded && moves.map(m => (
+                  <div key={m.id}
+                       className={`fd-move-item ${m.id === selectedId ? "active" : ""} ${m.isPlaceholder && !mediaByMoveId[m.id] ? "placeholder" : ""}`}
+                       onClick={() => selectMove(m.id)}>
+                    <span className="fd-cat-tag">{m.category}</span>
+                    <span>{m.action}</span>
+                    {mediaByMoveId[m.id] && <span className="fd-move-media-dot" title="has video">●</span>}
+                  </div>
+                ))}
               </div>
-              {byCharacter[char].map(m => (
-                <div key={m.id}
-                     className={`fd-move-item ${m.id === selectedId ? "active" : ""}`}
-                     onClick={() => selectMove(m.id)}>
-                  <span className="fd-cat-tag">{m.category}</span>
-                  <span>{m.action}</span>
-                </div>
-              ))}
-            </div>
-          ))}
+            );
+          })}
         </aside>
 
         {/* Detail */}
