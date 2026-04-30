@@ -633,29 +633,83 @@ export function FrameDataTab() {
     playStartTsRef.current = performance.now();
 
     const videoEl = videoRef.current; // capture for cleanup
-    if (videoEl) {
-      videoEl.currentTime = playStartFrameRef.current / FPS;
-      videoEl.play().catch(() => {});
+
+    // ─── Video-driven playback (when media is present) ───
+    // The frame timeline (move.durationFrames) reflects the ORIGINAL move's
+    // frame count from the JSON. A processed video may be a totally different
+    // duration (trimmed, slowed). Drive currentFrame from video.currentTime
+    // mapped proportionally so the user sees the WHOLE saved video play
+    // through, with the frame counter ticking through the move at the
+    // video's own (possibly slowed) pace. The `loop` attribute on the
+    // <video> handles repeating once it reaches the end.
+    if (videoEl && media) {
+      // WebM files from MediaRecorder often report duration === Infinity
+      // until you seek past the end. Force the browser to compute it.
+      const ensureDuration = async () => {
+        if (!isFinite(videoEl.duration) || videoEl.duration === 0) {
+          videoEl.currentTime = 1e9;
+          await new Promise(r => setTimeout(r, 50));
+          videoEl.currentTime = 0;
+          await new Promise(r => setTimeout(r, 30));
+        }
+      };
+
+      let active = true;
+      (async () => {
+        await ensureDuration();
+        if (!active) return;
+
+        const dur = isFinite(videoEl.duration) && videoEl.duration > 0
+          ? videoEl.duration
+          : (move.durationFrames / FPS);
+
+        // If user pressed play near the end of the move, restart from 0.
+        const startFrac = currentFrame >= move.durationFrames - 1
+          ? 0
+          : currentFrame / move.durationFrames;
+        videoEl.currentTime = startFrac * dur;
+        try { await videoEl.play(); } catch { /* autoplay blocked */ }
+
+        const tick = () => {
+          if (!active) return;
+          const d = isFinite(videoEl.duration) && videoEl.duration > 0
+            ? videoEl.duration
+            : dur;
+          const frac = videoEl.currentTime / d;
+          // Frame counter follows video position (will wrap when video loops)
+          setCurrentFrame(frac * move.durationFrames);
+          rafRef.current = requestAnimationFrame(tick);
+        };
+        rafRef.current = requestAnimationFrame(tick);
+      })();
+
+      return () => {
+        active = false;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        if (videoEl) videoEl.pause();
+      };
     }
 
+    // ─── No video — fall back to wall-clock-driven 60fps playback ───
     const tick = (now) => {
       const elapsed = (now - playStartTsRef.current) / 1000;
       const frame = playStartFrameRef.current + elapsed * FPS;
       if (frame >= move.durationFrames) {
-        setCurrentFrame(move.durationFrames);
-        setIsPlaying(false);
-        return;
+        // Loop the frame counter (matches video `loop` behavior)
+        playStartFrameRef.current = 0;
+        playStartTsRef.current = performance.now();
+        setCurrentFrame(0);
+      } else {
+        setCurrentFrame(frame);
       }
-      setCurrentFrame(frame);
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      if (videoEl) videoEl.pause();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, selectedId]);
+  }, [isPlaying, selectedId, media]);
 
   // ── Play handler — wraps state to handle "play from end" resets ──
   const togglePlay = useCallback(() => {
@@ -683,7 +737,17 @@ export function FrameDataTab() {
     setCurrentFrame(f);
     if (fromUserScrub) {
       setIsPlaying(false);
-      if (videoRef.current) videoRef.current.currentTime = f / FPS;
+      const v = videoRef.current;
+      if (v) {
+        // Map frame proportionally to video duration. For unprocessed videos,
+        // duration ≈ durationFrames/FPS so this collapses to f/FPS. For
+        // processed (slowed/trimmed) videos, frac of move → frac of video.
+        const dur = isFinite(v.duration) && v.duration > 0
+          ? v.duration
+          : (move.durationFrames / FPS);
+        const frac = move.durationFrames > 0 ? f / move.durationFrames : 0;
+        v.currentTime = frac * dur;
+      }
     }
   }, [move]);
 
