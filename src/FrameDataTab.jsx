@@ -587,11 +587,11 @@ export function FrameDataTab() {
   const loadStatus = !fd.initialized ? "loading"
                   : moveIds.length === 0 ? "empty"
                   : "ready";
-  // Effective ID: user's last click if it still exists, else auto-pick first
-  // move with media, else first move.
-  const effectiveId = (selectedId && movesById[selectedId])
-    ? selectedId
-    : (Object.keys(mediaByMoveId).find(id => movesById[id]) || moveIds[0] || null);
+  // Effective ID: ONLY honor the user's last click. We deliberately do NOT
+  // auto-pick a default move on mount — the sidebar starts with all character
+  // groups collapsed, and the detail pane shows an empty state until the
+  // user explicitly clicks into a character and picks a move.
+  const effectiveId = (selectedId && movesById[selectedId]) ? selectedId : null;
   const move = effectiveId ? movesById[effectiveId] : null;
 
   // ── Manifest loader (one-shot on mount if not already initialized) ──
@@ -1016,7 +1016,38 @@ export function FrameDataTab() {
               setTooltip={setTooltip}
               onNotifyClick={(f) => setFrame(f, true)}
             />
-          ) : null}
+          ) : (
+            <div style={{
+              display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center",
+              minHeight: 480, padding: 40,
+              border: "1px dashed var(--line)",
+              borderRadius: "var(--r)",
+              background: "var(--bg2)",
+              textAlign: "center",
+            }}>
+              <div style={{
+                fontSize: 56, marginBottom: 12, opacity: 0.4,
+                fontFamily: "var(--font-display)", color: "var(--accent3)",
+              }}>◂◃◂</div>
+              <div style={{
+                fontFamily: "var(--font-display)",
+                fontSize: 18, fontWeight: 700, letterSpacing: 1.5,
+                textTransform: "uppercase", color: "var(--text1)",
+                marginBottom: 8,
+              }}>
+                Pick a character
+              </div>
+              <div style={{
+                fontSize: 13, color: "var(--text2)", maxWidth: 380,
+                lineHeight: 1.6,
+              }}>
+                The sidebar lists every character. Click a name to expand
+                their move list, then pick a move to see frame data and
+                attached video.
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
