@@ -1,0 +1,3922 @@
+[
+  {
+    "Type": "PfgFixedAnimDataAsset",
+    "Name": "Mvs_Arya_Nav_FastFall_Montage_FAD",
+    "Class": "UScriptClass'PfgFixedAnimDataAsset'",
+    "Flags": "RF_Public | RF_Standalone | RF_WasLoaded | RF_LoadCompleted",
+    "Properties": {
+      "Duration": {
+        "Data": 2147483648
+      },
+      "ReferenceMontage": {
+        "AssetPathName": "/Game/Character/Arya/Animations/Nav/Mvs_Arya_Nav_FastFall_Montage.Mvs_Arya_Nav_FastFall_Montage",
+        "SubPathString": ""
+      },
+      "NotifyData": [
+        {
+          "startTime": {
+            "Data": 0
+          },
+          "EndTime": {
+            "Data": 0
+          },
+          "TrackIndex": 0,
+          "NotifyName": "AnimNotify_MvsStateTagNotify_FullAnimation",
+          "GroupName": "DefaultGroup"
+        },
+        {
+          "startTime": {
+            "Data": 0
+          },
+          "EndTime": {
+            "Data": 2164252672
+          },
+          "TrackIndex": 1,
+          "NotifyName": "AnimNotify_ExitOnFastFallEnd_C",
+          "GroupName": "DefaultGroup"
+        }
+      ],
+      "SlotSets": [
+        {
+          "Key": "DefaultSlot",
+          "Value": {
+            "SlotSet": [
+              {
+                "Key": "fml_un_C_neck_a",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_C_neck_a",
+                      "Value": "fml_un_C_spine_end"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_C_head_end",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_C_head_end",
+                      "Value": "fml_un_C_neck_a"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_C_spine_end",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_C_spine_end",
+                      "Value": "fml_un_C_pelvis"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_C_pelvis",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_L_uparm",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_L_uparm",
+                      "Value": "fml_un_C_spine_end"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_L_loarm",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_L_loarm",
+                      "Value": "fml_un_L_uparm"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_L_hand_middle",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_L_hand_middle",
+                      "Value": "fml_un_L_loarm"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_uparm",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_R_uparm",
+                      "Value": "fml_un_C_spine_end"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_loarm",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_R_loarm",
+                      "Value": "fml_un_R_uparm"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_hand_middle",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_R_hand_middle",
+                      "Value": "fml_un_R_wrist"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_L_upleg",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_L_loleg",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_L_loleg",
+                      "Value": "fml_un_L_upleg"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_L_foot",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_L_foot",
+                      "Value": "fml_un_L_loleg"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_upleg",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_loleg",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_R_loleg",
+                      "Value": "fml_un_R_upleg"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_foot",
+                "Value": {
+                  "BoneLocations": null,
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_R_foot",
+                      "Value": "fml_un_R_loleg"
+                    }
+                  ],
+                  "SocketTransforms": [],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "L_Wrist",
+                "Value": {
+                  "BoneLocations": [],
+                  "BoneParentMap": [
+                    {
+                      "Key": "L_Wrist",
+                      "Value": "fml_un_L_loarm"
+                    }
+                  ],
+                  "SocketTransforms": [
+                    {
+                      "Key": "0",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -321371963392
+                          },
+                          "Y": {
+                            "Data": 258952118272
+                          },
+                          "Z": {
+                            "Data": 1113993904128
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1433854208
+                          },
+                          "Pitch": {
+                            "Data": 666425088
+                          },
+                          "Yaw": {
+                            "Data": 2262990080
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "1",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -321838546944
+                          },
+                          "Y": {
+                            "Data": 259825926144
+                          },
+                          "Z": {
+                            "Data": 1117458399232
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1437356160
+                          },
+                          "Pitch": {
+                            "Data": 681322880
+                          },
+                          "Yaw": {
+                            "Data": 2250620672
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "2",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -322126610432
+                          },
+                          "Y": {
+                            "Data": 260717035520
+                          },
+                          "Z": {
+                            "Data": 1121403535360
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1441978624
+                          },
+                          "Pitch": {
+                            "Data": 698968640
+                          },
+                          "Yaw": {
+                            "Data": 2237772032
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "3",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -322301132800
+                          },
+                          "Y": {
+                            "Data": 261592612864
+                          },
+                          "Z": {
+                            "Data": 1125708726272
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1447025024
+                          },
+                          "Pitch": {
+                            "Data": 718014784
+                          },
+                          "Yaw": {
+                            "Data": 2224437504
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "4",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -322465071104
+                          },
+                          "Y": {
+                            "Data": 262569656320
+                          },
+                          "Z": {
+                            "Data": 1130038820864
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1452089984
+                          },
+                          "Pitch": {
+                            "Data": 736584192
+                          },
+                          "Yaw": {
+                            "Data": 2210893568
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "5",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -322764111872
+                          },
+                          "Y": {
+                            "Data": 263431651328
+                          },
+                          "Z": {
+                            "Data": 1134409940992
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1457159424
+                          },
+                          "Pitch": {
+                            "Data": 754627392
+                          },
+                          "Yaw": {
+                            "Data": 2198085888
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "6",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -323259596800
+                          },
+                          "Y": {
+                            "Data": 264402468864
+                          },
+                          "Z": {
+                            "Data": 1138467930112
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1461347456
+                          },
+                          "Pitch": {
+                            "Data": 769875648
+                          },
+                          "Yaw": {
+                            "Data": 2185396224
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "7",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -324037967872
+                          },
+                          "Y": {
+                            "Data": 265580429312
+                          },
+                          "Z": {
+                            "Data": 1141900836864
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1465454592
+                          },
+                          "Pitch": {
+                            "Data": 781402944
+                          },
+                          "Yaw": {
+                            "Data": 2173257728
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294927104
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "8",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -325306351616
+                          },
+                          "Y": {
+                            "Data": 266819452928
+                          },
+                          "Z": {
+                            "Data": 1144552292352
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1468074752
+                          },
+                          "Pitch": {
+                            "Data": 787204800
+                          },
+                          "Yaw": {
+                            "Data": 2161788160
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "9",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -327105019904
+                          },
+                          "Y": {
+                            "Data": 268260786176
+                          },
+                          "Z": {
+                            "Data": 1146225295360
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1469542656
+                          },
+                          "Pitch": {
+                            "Data": 786785280
+                          },
+                          "Yaw": {
+                            "Data": 2151394816
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294939392
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "10",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -329672392704
+                          },
+                          "Y": {
+                            "Data": 269891452928
+                          },
+                          "Z": {
+                            "Data": 1147225112576
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1464780288
+                          },
+                          "Pitch": {
+                            "Data": 778382080
+                          },
+                          "Yaw": {
+                            "Data": 2143609344
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "11",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -332869173248
+                          },
+                          "Y": {
+                            "Data": 271774777344
+                          },
+                          "Z": {
+                            "Data": 1147834728448
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1451264512
+                          },
+                          "Pitch": {
+                            "Data": 761784128
+                          },
+                          "Yaw": {
+                            "Data": 2139032704
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294982656
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "12",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -336407134208
+                          },
+                          "Y": {
+                            "Data": 273756831744
+                          },
+                          "Z": {
+                            "Data": 1147920973824
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1431864064
+                          },
+                          "Pitch": {
+                            "Data": 738513856
+                          },
+                          "Yaw": {
+                            "Data": 2136842624
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "13",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -340107657216
+                          },
+                          "Y": {
+                            "Data": 275496796160
+                          },
+                          "Z": {
+                            "Data": 1147400486912
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1410006784
+                          },
+                          "Pitch": {
+                            "Data": 710413760
+                          },
+                          "Yaw": {
+                            "Data": 2136695296
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "14",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -343606951936
+                          },
+                          "Y": {
+                            "Data": 276988821504
+                          },
+                          "Z": {
+                            "Data": 1146301317120
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1389154816
+                          },
+                          "Pitch": {
+                            "Data": 680496896
+                          },
+                          "Yaw": {
+                            "Data": 2137160832
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "15",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -346675740672
+                          },
+                          "Y": {
+                            "Data": 278162964480
+                          },
+                          "Z": {
+                            "Data": 1144550457344
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1372539520
+                          },
+                          "Pitch": {
+                            "Data": 651116352
+                          },
+                          "Yaw": {
+                            "Data": 2137372672
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "16",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -349108994048
+                          },
+                          "Y": {
+                            "Data": 278672408576
+                          },
+                          "Z": {
+                            "Data": 1142401269760
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1362434432
+                          },
+                          "Pitch": {
+                            "Data": 625232448
+                          },
+                          "Yaw": {
+                            "Data": 2137683712
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "17",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -350513004544
+                          },
+                          "Y": {
+                            "Data": 278759800832
+                          },
+                          "Z": {
+                            "Data": 1139932659712
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1362205312
+                          },
+                          "Pitch": {
+                            "Data": 606509184
+                          },
+                          "Yaw": {
+                            "Data": 2136644352
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "18",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -351020154880
+                          },
+                          "Y": {
+                            "Data": 278047981568
+                          },
+                          "Z": {
+                            "Data": 1137462738944
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1367491584
+                          },
+                          "Pitch": {
+                            "Data": 593847104
+                          },
+                          "Yaw": {
+                            "Data": 2136422400
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "19",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -350822039552
+                          },
+                          "Y": {
+                            "Data": 277215772672
+                          },
+                          "Z": {
+                            "Data": 1135280259072
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1371950464
+                          },
+                          "Pitch": {
+                            "Data": 585293632
+                          },
+                          "Yaw": {
+                            "Data": 2138466688
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "20",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -350016143360
+                          },
+                          "Y": {
+                            "Data": 276074332160
+                          },
+                          "Z": {
+                            "Data": 1133428211712
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1375295872
+                          },
+                          "Pitch": {
+                            "Data": 580564160
+                          },
+                          "Yaw": {
+                            "Data": 2142842624
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "21",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -348735995904
+                          },
+                          "Y": {
+                            "Data": 274595823616
+                          },
+                          "Z": {
+                            "Data": 1131590451200
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1378652032
+                          },
+                          "Pitch": {
+                            "Data": 578695936
+                          },
+                          "Yaw": {
+                            "Data": 2149358592
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "22",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -347011547136
+                          },
+                          "Y": {
+                            "Data": 272924311552
+                          },
+                          "Z": {
+                            "Data": 1129598681088
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1382357632
+                          },
+                          "Pitch": {
+                            "Data": 578649984
+                          },
+                          "Yaw": {
+                            "Data": 2157569792
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4295006720
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "23",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -344939921408
+                          },
+                          "Y": {
+                            "Data": 271044050944
+                          },
+                          "Z": {
+                            "Data": 1127480426496
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1386939904
+                          },
+                          "Pitch": {
+                            "Data": 580982720
+                          },
+                          "Yaw": {
+                            "Data": 2167507712
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294972928
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "24",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -342565552128
+                          },
+                          "Y": {
+                            "Data": 269094993920
+                          },
+                          "Z": {
+                            "Data": 1125099110400
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1392386816
+                          },
+                          "Pitch": {
+                            "Data": 584637888
+                          },
+                          "Yaw": {
+                            "Data": 2178756352
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "25",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -340028555264
+                          },
+                          "Y": {
+                            "Data": 267041832960
+                          },
+                          "Z": {
+                            "Data": 1122380152832
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1399814272
+                          },
+                          "Pitch": {
+                            "Data": 589995904
+                          },
+                          "Yaw": {
+                            "Data": 2191026688
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "26",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -336939646976
+                          },
+                          "Y": {
+                            "Data": 265093939200
+                          },
+                          "Z": {
+                            "Data": 1119694094336
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1407722880
+                          },
+                          "Pitch": {
+                            "Data": 598597504
+                          },
+                          "Yaw": {
+                            "Data": 2204344320
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "27",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -333207961600
+                          },
+                          "Y": {
+                            "Data": 263364919296
+                          },
+                          "Z": {
+                            "Data": 1117725655040
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1415886208
+                          },
+                          "Pitch": {
+                            "Data": 614172160
+                          },
+                          "Yaw": {
+                            "Data": 2218897408
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "28",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -329141911552
+                          },
+                          "Y": {
+                            "Data": 261772443648
+                          },
+                          "Z": {
+                            "Data": 1116147941376
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1423011456
+                          },
+                          "Pitch": {
+                            "Data": 631769344
+                          },
+                          "Yaw": {
+                            "Data": 2233791488
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "29",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -325090410496
+                          },
+                          "Y": {
+                            "Data": 260321181696
+                          },
+                          "Z": {
+                            "Data": 1115033829376
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1429097472
+                          },
+                          "Pitch": {
+                            "Data": 650592064
+                          },
+                          "Yaw": {
+                            "Data": 2248733184
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "30",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": -321371963392
+                          },
+                          "Y": {
+                            "Data": 258952118272
+                          },
+                          "Z": {
+                            "Data": 1113993904128
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -1433854208
+                          },
+                          "Pitch": {
+                            "Data": 666425088
+                          },
+                          "Yaw": {
+                            "Data": 2262990080
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "R_Wrist",
+                "Value": {
+                  "BoneLocations": [],
+                  "BoneParentMap": [
+                    {
+                      "Key": "R_Wrist",
+                      "Value": "fml_un_R_loarm"
+                    }
+                  ],
+                  "SocketTransforms": [
+                    {
+                      "Key": "0",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 187804303360
+                          },
+                          "Y": {
+                            "Data": -347239481344
+                          },
+                          "Z": {
+                            "Data": 1293809745920
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2420674560
+                          },
+                          "Pitch": {
+                            "Data": -454651840
+                          },
+                          "Yaw": {
+                            "Data": -3433888768
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "1",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 186772717568
+                          },
+                          "Y": {
+                            "Data": -348613476352
+                          },
+                          "Z": {
+                            "Data": 1294322892800
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2404095744
+                          },
+                          "Pitch": {
+                            "Data": -409814432
+                          },
+                          "Yaw": {
+                            "Data": -3451135232
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "2",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 185885360128
+                          },
+                          "Y": {
+                            "Data": -350132109312
+                          },
+                          "Z": {
+                            "Data": 1294734196736
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2389924096
+                          },
+                          "Pitch": {
+                            "Data": -368738784
+                          },
+                          "Yaw": {
+                            "Data": -3466728960
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "3",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 185134579712
+                          },
+                          "Y": {
+                            "Data": -351814352896
+                          },
+                          "Z": {
+                            "Data": 1295019147264
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2376944896
+                          },
+                          "Pitch": {
+                            "Data": -331412992
+                          },
+                          "Yaw": {
+                            "Data": -3481478912
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "4",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 184256675840
+                          },
+                          "Y": {
+                            "Data": -353567670272
+                          },
+                          "Z": {
+                            "Data": 1295339880448
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2364893440
+                          },
+                          "Pitch": {
+                            "Data": -298084032
+                          },
+                          "Yaw": {
+                            "Data": -3495375872
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "5",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 183331684352
+                          },
+                          "Y": {
+                            "Data": -355218423808
+                          },
+                          "Z": {
+                            "Data": 1295867052032
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2353090304
+                          },
+                          "Pitch": {
+                            "Data": -269925984
+                          },
+                          "Yaw": {
+                            "Data": -3508774912
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294929408
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "6",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 182224683008
+                          },
+                          "Y": {
+                            "Data": -356733026304
+                          },
+                          "Z": {
+                            "Data": 1296605380608
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2340779008
+                          },
+                          "Pitch": {
+                            "Data": -246957616
+                          },
+                          "Yaw": {
+                            "Data": -3522060032
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294943488
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "7",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 180824981504
+                          },
+                          "Y": {
+                            "Data": -357878628352
+                          },
+                          "Z": {
+                            "Data": 1297851351040
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2327575040
+                          },
+                          "Pitch": {
+                            "Data": -230302112
+                          },
+                          "Yaw": {
+                            "Data": -3535313152
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "8",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 179012665344
+                          },
+                          "Y": {
+                            "Data": -358725877760
+                          },
+                          "Z": {
+                            "Data": 1299518980096
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2312698624
+                          },
+                          "Pitch": {
+                            "Data": -219579712
+                          },
+                          "Yaw": {
+                            "Data": -3549064448
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "9",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 176797007872
+                          },
+                          "Y": {
+                            "Data": -359014170624
+                          },
+                          "Z": {
+                            "Data": 1301886795776
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2296115968
+                          },
+                          "Pitch": {
+                            "Data": -216407696
+                          },
+                          "Yaw": {
+                            "Data": -3563008768
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294995456
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "10",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 173881425920
+                          },
+                          "Y": {
+                            "Data": -358759104512
+                          },
+                          "Z": {
+                            "Data": 1304847450112
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2275661824
+                          },
+                          "Pitch": {
+                            "Data": -220110752
+                          },
+                          "Yaw": {
+                            "Data": -3578493184
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "11",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 170431283200
+                          },
+                          "Y": {
+                            "Data": -358052954112
+                          },
+                          "Z": {
+                            "Data": 1308136046592
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2252089088
+                          },
+                          "Pitch": {
+                            "Data": -230166864
+                          },
+                          "Yaw": {
+                            "Data": -3594889984
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "12",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 166616317952
+                          },
+                          "Y": {
+                            "Data": -357108416512
+                          },
+                          "Z": {
+                            "Data": 1311519801344
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2227347712
+                          },
+                          "Pitch": {
+                            "Data": -245240560
+                          },
+                          "Yaw": {
+                            "Data": -3610907904
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "13",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 162857533440
+                          },
+                          "Y": {
+                            "Data": -356001087488
+                          },
+                          "Z": {
+                            "Data": 1314815737856
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2203337472
+                          },
+                          "Pitch": {
+                            "Data": -264972768
+                          },
+                          "Yaw": {
+                            "Data": -3625429760
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "14",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 159376343040
+                          },
+                          "Y": {
+                            "Data": -354916892672
+                          },
+                          "Z": {
+                            "Data": 1317766299648
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2183701248
+                          },
+                          "Pitch": {
+                            "Data": -289132224
+                          },
+                          "Yaw": {
+                            "Data": -3636236288
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "15",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 156496379904
+                          },
+                          "Y": {
+                            "Data": -353916518400
+                          },
+                          "Z": {
+                            "Data": 1320270561280
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2170723584
+                          },
+                          "Pitch": {
+                            "Data": -318115072
+                          },
+                          "Yaw": {
+                            "Data": -3642069248
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "16",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 154663583744
+                          },
+                          "Y": {
+                            "Data": -353207386112
+                          },
+                          "Z": {
+                            "Data": 1322075422720
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2166068736
+                          },
+                          "Pitch": {
+                            "Data": -349592544
+                          },
+                          "Yaw": {
+                            "Data": -3642357760
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "17",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 154150387712
+                          },
+                          "Y": {
+                            "Data": -352821968896
+                          },
+                          "Z": {
+                            "Data": 1323177345024
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2171004160
+                          },
+                          "Pitch": {
+                            "Data": -382865792
+                          },
+                          "Yaw": {
+                            "Data": -3636426240
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "18",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 155174191104
+                          },
+                          "Y": {
+                            "Data": -352857489408
+                          },
+                          "Z": {
+                            "Data": 1323452203008
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2184101120
+                          },
+                          "Pitch": {
+                            "Data": -418183104
+                          },
+                          "Yaw": {
+                            "Data": -3625180160
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "19",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 157741973504
+                          },
+                          "Y": {
+                            "Data": -353152401408
+                          },
+                          "Z": {
+                            "Data": 1322896064512
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2202606848
+                          },
+                          "Pitch": {
+                            "Data": -455679744
+                          },
+                          "Yaw": {
+                            "Data": -3610321664
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "20",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 161397227520
+                          },
+                          "Y": {
+                            "Data": -353617903616
+                          },
+                          "Z": {
+                            "Data": 1321598320640
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2224459520
+                          },
+                          "Pitch": {
+                            "Data": -493207040
+                          },
+                          "Yaw": {
+                            "Data": -3592864512
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "21",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 165805867008
+                          },
+                          "Y": {
+                            "Data": -354076229632
+                          },
+                          "Z": {
+                            "Data": 1319691354112
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2247687680
+                          },
+                          "Pitch": {
+                            "Data": -529180960
+                          },
+                          "Yaw": {
+                            "Data": -3574074368
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "22",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 170540793856
+                          },
+                          "Y": {
+                            "Data": -354476883968
+                          },
+                          "Z": {
+                            "Data": 1317289721856
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2270387712
+                          },
+                          "Pitch": {
+                            "Data": -561456512
+                          },
+                          "Yaw": {
+                            "Data": -3555202048
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "23",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 175158689792
+                          },
+                          "Y": {
+                            "Data": -354674016256
+                          },
+                          "Z": {
+                            "Data": 1314498543616
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2290711296
+                          },
+                          "Pitch": {
+                            "Data": -587788480
+                          },
+                          "Yaw": {
+                            "Data": -3537653248
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "24",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 179437666304
+                          },
+                          "Y": {
+                            "Data": -354584788992
+                          },
+                          "Z": {
+                            "Data": 1311489392640
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2306778368
+                          },
+                          "Pitch": {
+                            "Data": -601812800
+                          },
+                          "Yaw": {
+                            "Data": -3523804160
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294973440
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "25",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 182811344896
+                          },
+                          "Y": {
+                            "Data": -354118533120
+                          },
+                          "Z": {
+                            "Data": 1308440133632
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2317821440
+                          },
+                          "Pitch": {
+                            "Data": -599616448
+                          },
+                          "Yaw": {
+                            "Data": -3514716672
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294938368
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "26",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 185050431488
+                          },
+                          "Y": {
+                            "Data": -353164984320
+                          },
+                          "Z": {
+                            "Data": 1305409224704
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2330465280
+                          },
+                          "Pitch": {
+                            "Data": -583205824
+                          },
+                          "Yaw": {
+                            "Data": -3505067520
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "27",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 186279526400
+                          },
+                          "Y": {
+                            "Data": -351773065216
+                          },
+                          "Z": {
+                            "Data": 1302346465280
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2348999680
+                          },
+                          "Pitch": {
+                            "Data": -555180160
+                          },
+                          "Yaw": {
+                            "Data": -3491301120
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "28",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 186864041984
+                          },
+                          "Y": {
+                            "Data": -350205935616
+                          },
+                          "Z": {
+                            "Data": 1299304153088
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2371579904
+                          },
+                          "Pitch": {
+                            "Data": -520880032
+                          },
+                          "Yaw": {
+                            "Data": -3473958912
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "29",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 187198849024
+                          },
+                          "Y": {
+                            "Data": -348646670336
+                          },
+                          "Z": {
+                            "Data": 1296434462720
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2395795456
+                          },
+                          "Pitch": {
+                            "Data": -485450560
+                          },
+                          "Yaw": {
+                            "Data": -3454473216
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "30",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 187804303360
+                          },
+                          "Y": {
+                            "Data": -347239481344
+                          },
+                          "Z": {
+                            "Data": 1293809745920
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": -2420674560
+                          },
+                          "Pitch": {
+                            "Data": -454651840
+                          },
+                          "Yaw": {
+                            "Data": -3433888768
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              },
+              {
+                "Key": "fml_un_R_wrist",
+                "Value": {
+                  "BoneLocations": [],
+                  "BoneParentMap": [
+                    {
+                      "Key": "fml_un_R_wrist",
+                      "Value": "fml_un_R_uparm"
+                    }
+                  ],
+                  "SocketTransforms": [
+                    {
+                      "Key": "0",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 187804303360
+                          },
+                          "Y": {
+                            "Data": -347239481344
+                          },
+                          "Z": {
+                            "Data": 1293809745920
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 350259616
+                          },
+                          "Pitch": {
+                            "Data": -3538268416
+                          },
+                          "Yaw": {
+                            "Data": -2316298752
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "1",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 186772717568
+                          },
+                          "Y": {
+                            "Data": -348613476352
+                          },
+                          "Z": {
+                            "Data": 1294322892800
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 344751296
+                          },
+                          "Pitch": {
+                            "Data": -3516185856
+                          },
+                          "Yaw": {
+                            "Data": -2339048960
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "2",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 185885360128
+                          },
+                          "Y": {
+                            "Data": -350132109312
+                          },
+                          "Z": {
+                            "Data": 1294734196736
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 341697600
+                          },
+                          "Pitch": {
+                            "Data": -3493757952
+                          },
+                          "Yaw": {
+                            "Data": -2362899456
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "3",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 185134579712
+                          },
+                          "Y": {
+                            "Data": -351814352896
+                          },
+                          "Z": {
+                            "Data": 1295019147264
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 341680032
+                          },
+                          "Pitch": {
+                            "Data": -3471199744
+                          },
+                          "Yaw": {
+                            "Data": -2387228416
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "4",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 184256675840
+                          },
+                          "Y": {
+                            "Data": -353567670272
+                          },
+                          "Z": {
+                            "Data": 1295339880448
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 344297760
+                          },
+                          "Pitch": {
+                            "Data": -3449149952
+                          },
+                          "Yaw": {
+                            "Data": -2411123712
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "5",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 183331684352
+                          },
+                          "Y": {
+                            "Data": -355218423808
+                          },
+                          "Z": {
+                            "Data": 1295867052032
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 350386848
+                          },
+                          "Pitch": {
+                            "Data": -3428301824
+                          },
+                          "Yaw": {
+                            "Data": -2433567744
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294929408
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "6",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 182224683008
+                          },
+                          "Y": {
+                            "Data": -356733026304
+                          },
+                          "Z": {
+                            "Data": 1296605380608
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 359986688
+                          },
+                          "Pitch": {
+                            "Data": -3409019136
+                          },
+                          "Yaw": {
+                            "Data": -2453824512
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294943488
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "7",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 180824981504
+                          },
+                          "Y": {
+                            "Data": -357878628352
+                          },
+                          "Z": {
+                            "Data": 1297851351040
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 373441728
+                          },
+                          "Pitch": {
+                            "Data": -3392161536
+                          },
+                          "Yaw": {
+                            "Data": -2470731264
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "8",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 179012665344
+                          },
+                          "Y": {
+                            "Data": -358725877760
+                          },
+                          "Z": {
+                            "Data": 1299518980096
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 391026336
+                          },
+                          "Pitch": {
+                            "Data": -3377606144
+                          },
+                          "Yaw": {
+                            "Data": -2484161792
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "9",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 176797007872
+                          },
+                          "Y": {
+                            "Data": -359014170624
+                          },
+                          "Z": {
+                            "Data": 1301886795776
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 412725664
+                          },
+                          "Pitch": {
+                            "Data": -3366679296
+                          },
+                          "Yaw": {
+                            "Data": -2492450304
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294995456
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "10",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 173881425920
+                          },
+                          "Y": {
+                            "Data": -358759104512
+                          },
+                          "Z": {
+                            "Data": 1304847450112
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 439726272
+                          },
+                          "Pitch": {
+                            "Data": -3358866176
+                          },
+                          "Yaw": {
+                            "Data": -2495293696
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "11",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 170431283200
+                          },
+                          "Y": {
+                            "Data": -358052954112
+                          },
+                          "Z": {
+                            "Data": 1308136046592
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 470786016
+                          },
+                          "Pitch": {
+                            "Data": -3354259712
+                          },
+                          "Yaw": {
+                            "Data": -2492724736
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "12",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 166616317952
+                          },
+                          "Y": {
+                            "Data": -357108416512
+                          },
+                          "Z": {
+                            "Data": 1311519801344
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 503394080
+                          },
+                          "Pitch": {
+                            "Data": -3352743424
+                          },
+                          "Yaw": {
+                            "Data": -2485517568
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "13",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 162857533440
+                          },
+                          "Y": {
+                            "Data": -356001087488
+                          },
+                          "Z": {
+                            "Data": 1314815737856
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 536071680
+                          },
+                          "Pitch": {
+                            "Data": -3354319872
+                          },
+                          "Yaw": {
+                            "Data": -2474452736
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "14",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 159376343040
+                          },
+                          "Y": {
+                            "Data": -354916892672
+                          },
+                          "Z": {
+                            "Data": 1317766299648
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 565705024
+                          },
+                          "Pitch": {
+                            "Data": -3359652352
+                          },
+                          "Yaw": {
+                            "Data": -2460290816
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "15",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 156496379904
+                          },
+                          "Y": {
+                            "Data": -353916518400
+                          },
+                          "Z": {
+                            "Data": 1320270561280
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 591057344
+                          },
+                          "Pitch": {
+                            "Data": -3369116160
+                          },
+                          "Yaw": {
+                            "Data": -2443682304
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "16",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 154663583744
+                          },
+                          "Y": {
+                            "Data": -353207386112
+                          },
+                          "Z": {
+                            "Data": 1322075422720
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 610477376
+                          },
+                          "Pitch": {
+                            "Data": -3381462272
+                          },
+                          "Yaw": {
+                            "Data": -2426970112
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "17",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 154150387712
+                          },
+                          "Y": {
+                            "Data": -352821968896
+                          },
+                          "Z": {
+                            "Data": 1323177345024
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 622757696
+                          },
+                          "Pitch": {
+                            "Data": -3396523520
+                          },
+                          "Yaw": {
+                            "Data": -2410912512
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "18",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 155174191104
+                          },
+                          "Y": {
+                            "Data": -352857489408
+                          },
+                          "Z": {
+                            "Data": 1323452203008
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 629768576
+                          },
+                          "Pitch": {
+                            "Data": -3413583872
+                          },
+                          "Yaw": {
+                            "Data": -2395703296
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "19",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 157741973504
+                          },
+                          "Y": {
+                            "Data": -353152401408
+                          },
+                          "Z": {
+                            "Data": 1322896064512
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 634530368
+                          },
+                          "Pitch": {
+                            "Data": -3431460096
+                          },
+                          "Yaw": {
+                            "Data": -2381473792
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "20",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 161397227520
+                          },
+                          "Y": {
+                            "Data": -353617903616
+                          },
+                          "Z": {
+                            "Data": 1321598320640
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 636430400
+                          },
+                          "Pitch": {
+                            "Data": -3449629952
+                          },
+                          "Yaw": {
+                            "Data": -2367699200
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "21",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 165805867008
+                          },
+                          "Y": {
+                            "Data": -354076229632
+                          },
+                          "Z": {
+                            "Data": 1319691354112
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 635963456
+                          },
+                          "Pitch": {
+                            "Data": -3467280640
+                          },
+                          "Yaw": {
+                            "Data": -2354486528
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "22",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 170540793856
+                          },
+                          "Y": {
+                            "Data": -354476883968
+                          },
+                          "Z": {
+                            "Data": 1317289721856
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 632695744
+                          },
+                          "Pitch": {
+                            "Data": -3483951616
+                          },
+                          "Yaw": {
+                            "Data": -2341643008
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "23",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 175158689792
+                          },
+                          "Y": {
+                            "Data": -354674016256
+                          },
+                          "Z": {
+                            "Data": 1314498543616
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 626276160
+                          },
+                          "Pitch": {
+                            "Data": -3499154432
+                          },
+                          "Yaw": {
+                            "Data": -2329214976
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "24",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 179437666304
+                          },
+                          "Y": {
+                            "Data": -354584788992
+                          },
+                          "Z": {
+                            "Data": 1311489392640
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 615235392
+                          },
+                          "Pitch": {
+                            "Data": -3510370048
+                          },
+                          "Yaw": {
+                            "Data": -2320216832
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294973440
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "25",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 182811344896
+                          },
+                          "Y": {
+                            "Data": -354118533120
+                          },
+                          "Z": {
+                            "Data": 1308440133632
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 597544896
+                          },
+                          "Pitch": {
+                            "Data": -3516776704
+                          },
+                          "Yaw": {
+                            "Data": -2315766016
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294938368
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "26",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 185050431488
+                          },
+                          "Y": {
+                            "Data": -353164984320
+                          },
+                          "Z": {
+                            "Data": 1305409224704
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 566620928
+                          },
+                          "Pitch": {
+                            "Data": -3521640960
+                          },
+                          "Yaw": {
+                            "Data": -2313896448
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "27",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 186279526400
+                          },
+                          "Y": {
+                            "Data": -351773065216
+                          },
+                          "Z": {
+                            "Data": 1302346465280
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 520269568
+                          },
+                          "Pitch": {
+                            "Data": -3526199808
+                          },
+                          "Yaw": {
+                            "Data": -2314105344
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "28",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 186864041984
+                          },
+                          "Y": {
+                            "Data": -350205935616
+                          },
+                          "Z": {
+                            "Data": 1299304153088
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 464252160
+                          },
+                          "Pitch": {
+                            "Data": -3530574848
+                          },
+                          "Yaw": {
+                            "Data": -2314968064
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "29",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 187198849024
+                          },
+                          "Y": {
+                            "Data": -348646670336
+                          },
+                          "Z": {
+                            "Data": 1296434462720
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 405355616
+                          },
+                          "Pitch": {
+                            "Data": -3534555904
+                          },
+                          "Yaw": {
+                            "Data": -2315716864
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967808
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Key": "30",
+                      "Value": {
+                        "Location": {
+                          "X": {
+                            "Data": 187804303360
+                          },
+                          "Y": {
+                            "Data": -347239481344
+                          },
+                          "Z": {
+                            "Data": 1293809745920
+                          }
+                        },
+                        "Rotation": {
+                          "Roll": {
+                            "Data": 350259616
+                          },
+                          "Pitch": {
+                            "Data": -3538268416
+                          },
+                          "Yaw": {
+                            "Data": -2316298752
+                          }
+                        },
+                        "Scale": {
+                          "X": {
+                            "Data": 4294967296
+                          },
+                          "Y": {
+                            "Data": 4294967296
+                          },
+                          "Z": {
+                            "Data": 4294967296
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "SectionEndBoneLocations": [],
+                  "SectionEndSocketTransforms": []
+                }
+              }
+            ],
+            "VisibilityCurves": [
+              {
+                "Key": "Emissive_Mult",
+                "Value": {
+                  "RoundedValues": [
+                    {
+                      "Key": "1",
+                      "Value": 1
+                    },
+                    {
+                      "Key": "2",
+                      "Value": 1
+                    }
+                  ],
+                  "OnOrOff": [],
+                  "Values": []
+                }
+              },
+              {
+                "Key": "prop1LProp",
+                "Value": {
+                  "RoundedValues": [
+                    {
+                      "Key": "1",
+                      "Value": 1
+                    },
+                    {
+                      "Key": "2",
+                      "Value": 1
+                    }
+                  ],
+                  "OnOrOff": [],
+                  "Values": []
+                }
+              },
+              {
+                "Key": "prop2DaggerSheath",
+                "Value": {
+                  "RoundedValues": [
+                    {
+                      "Key": "1",
+                      "Value": 1
+                    },
+                    {
+                      "Key": "2",
+                      "Value": 1
+                    }
+                  ],
+                  "OnOrOff": [],
+                  "Values": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "SectionData": [
+        {
+          "startTime": {
+            "Data": 0
+          },
+          "EndTime": {
+            "Data": 2147483648
+          },
+          "SectionName": "Default",
+          "NextSectionName": "Loop"
+        }
+      ]
+    }
+  }
+]
