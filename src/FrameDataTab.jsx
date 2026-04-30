@@ -633,6 +633,7 @@ export function FrameDataTab() {
     playStartTsRef.current = performance.now();
 
     const videoEl = videoRef.current; // capture for cleanup
+    const currentMedia = effectiveId ? mediaByMoveId[effectiveId] : null;
 
     // ─── Video-driven playback (when media is present) ───
     // The frame timeline (move.durationFrames) reflects the ORIGINAL move's
@@ -642,7 +643,7 @@ export function FrameDataTab() {
     // through, with the frame counter ticking through the move at the
     // video's own (possibly slowed) pace. The `loop` attribute on the
     // <video> handles repeating once it reaches the end.
-    if (videoEl && media) {
+    if (videoEl && currentMedia) {
       // WebM files from MediaRecorder often report duration === Infinity
       // until you seek past the end. Force the browser to compute it.
       const ensureDuration = async () => {
@@ -709,7 +710,7 @@ export function FrameDataTab() {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPlaying, selectedId, media]);
+  }, [isPlaying, selectedId, effectiveId, mediaByMoveId]);
 
   // ── Play handler — wraps state to handle "play from end" resets ──
   const togglePlay = useCallback(() => {
