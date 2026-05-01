@@ -5126,15 +5126,38 @@ const TABS = [
 
 function AppShell() {
   const { state, dispatch } = useApp();
+  const { game } = useContext(GameContext);
 
   return (
     <div className="app">
       <div className="grid-bg" />
       {/* Header */}
       <header className="header">
+        <button
+          onClick={() => setRoute({ gameId: null })}
+          title="Back to game launcher"
+          style={{
+            background: "transparent", border: "none", cursor: "pointer",
+            padding: "4px 12px", marginRight: 16,
+            fontFamily: "var(--font-mono)", fontSize: 11,
+            letterSpacing: 1.5, textTransform: "uppercase",
+            color: "var(--text3)",
+            transition: "color 0.15s",
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = "var(--accent3)"}
+          onMouseLeave={(e) => e.currentTarget.style.color = "var(--text3)"}
+        >
+          ◂ All Games
+        </button>
         <div className="logo">
-          MV<span>SI</span>
-          <sub>Combo Intelligence</sub>
+          {game ? (
+            <>
+              {game.shortName.slice(0, 2).toUpperCase()}<span>{game.shortName.slice(2).toUpperCase() || "·"}</span>
+              <sub>{game.name}</sub>
+            </>
+          ) : (
+            <>MV<span>SI</span><sub>Combo Intelligence</sub></>
+          )}
         </div>
         <nav className="tabs">
           {TABS.map(t => (
@@ -5170,13 +5193,55 @@ function AppShell() {
 // § 15 — ENTRY POINT
 // ============================================================
 
+// ============================================================
+// Root — multi-game router
+// ============================================================
+// Reads window.location.hash via parseRoute(). If no game is
+// selected, renders the launcher. Otherwise mounts the existing
+// AppProvider/AppShell scoped to that game.
+//
+// NOTE: For now the per-game shell is the same code with no
+// game-aware data fetching yet — that's the next step. The
+// routing scaffolding is here so the launcher works and so the
+// reducer can grab the active gameId from a top-level context
+// when we wire Supabase.
+// ============================================================
+
+import { GameLauncher } from "./GameLauncher.jsx";
+import { parseRoute, getGame, setRoute } from "./lib/games.js";
+
+export const GameContext = createContext({ gameId: null, game: null });
+
 export default function MVSI() {
+  const [route, setRouteState] = useState(parseRoute());
+
+  useEffect(() => {
+    const onHashChange = () => setRouteState(parseRoute());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  const game = route.gameId ? getGame(route.gameId) : null;
+
+  // No game picked → launcher
+  if (!game) {
+    return (
+      <>
+        <style>{STYLES}</style>
+        <GameLauncher />
+      </>
+    );
+  }
+
+  // Game picked → existing shell, scoped by GameContext
   return (
     <>
       <style>{STYLES}</style>
-      <AppProvider>
-        <AppShell />
-      </AppProvider>
+      <GameContext.Provider value={{ gameId: game.id, game }}>
+        <AppProvider>
+          <AppShell />
+        </AppProvider>
+      </GameContext.Provider>
     </>
   );
 }
